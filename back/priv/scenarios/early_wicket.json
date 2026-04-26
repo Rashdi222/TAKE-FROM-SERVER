@@ -1,0 +1,63 @@
+{
+  "trigger": {
+    "event_type": "wicket",
+    "severity": "critical",
+    "reason": "simulation_early_wicket"
+  },
+  "match_state": {
+    "team1": "Team 1",
+    "team2": "Team 2",
+    "inning": 1,
+    "over": "2.1",
+    "ball_in_over": 1,
+    "batting_team": "Team 1",
+    "bowling_team": "Team 2",
+    "runs_total": 18,
+    "wickets_total": 1,
+    "target_runs": null,
+    "current_run_rate": "8.31",
+    "required_run_rate": null,
+    "momentum_index": "-0.24",
+    "score": {
+      "format": "t20"
+    },
+    "raw_data": {
+      "format": "t20",
+      "season_name": "2026",
+      "round_name": "Simulation Suite",
+      "venue": {
+        "name": "National Stadium Karachi",
+        "city": "Karachi",
+        "country": "Pakistan"
+      },
+      "toss": {
+        "winner_team": "Team 1",
+        "decision": "bat"
+      },
+      "teams": {
+        "home": {
+          "name": "Team 1",
+          "ranking": 3
+        },
+        "away": {
+          "name": "Team 2",
+          "ranking": 4
+        }
+      },
+      "batting": [
+        {
+          "name": "Anchor",
+          "team_name": "Team 1",
+          "strike_rate": 132.0,
+          "active": true
+        },
+        {
+          "name": "New Batter",
+          "team_name": "Team 1",
+          "strike_rate": 124.0,
+          "active": true
+        }
+      ]
+    }
+  }
+}

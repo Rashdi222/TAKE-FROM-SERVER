@@ -1,0 +1,63 @@
+{
+  "get_livescore": {
+    "success": 1,
+    "result": [
+      {
+        "event_key": "sim-tiebreak-001",
+        "event_live": "1",
+        "event_status": "Tie Break",
+        "event_first_player": "Omar Siddiq",
+        "event_second_player": "Mikael Ross",
+        "first_player_key": "p1-sim-tie",
+        "second_player_key": "p2-sim-tie",
+        "event_serve": "Mikael Ross",
+        "event_tiebreak": "1",
+        "event_game_result": "4 - 3",
+        "event_final_result": "6 - 6",
+        "event_date": "2026-03-30",
+        "event_time": "20:05",
+        "tournament_name": "Simulation Masters",
+        "event_round": "Semi Final",
+        "event_court": "Arena One",
+        "scores": [
+          {
+            "set": "1",
+            "score_first": "6",
+            "score_second": "6",
+            "score_tiebreak": "1"
+          }
+        ],
+        "pointbypoint": [
+          {
+            "set_number": "1",
+            "number_game": "13",
+            "score": "4-3",
+            "serve": "Mikael Ross",
+            "break_point": "0",
+            "set_point": "0",
+            "match_point": "0",
+            "points": ["1-0", "1-1", "2-1", "3-2", "4-3"]
+          }
+        ]
+      }
+    ]
+  },
+  "get_live_odds": {
+    "success": 1,
+    "result": [
+      {
+        "event_key": "sim-tiebreak-001",
+        "odd_date": "2026-03-30",
+        "odd_time": "20:05:00",
+        "match_winner": [
+          { "name": "Omar Siddiq", "odd": "1.68" },
+          { "name": "Mikael Ross", "odd": "2.20" }
+        ],
+        "set_winner": [
+          { "name": "Omar Siddiq", "odd": "1.75" },
+          { "name": "Mikael Ross", "odd": "2.05" }
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "trigger": {
+    "event_type": "chase_surge",
+    "severity": "critical",
+    "reason": "simulation_desperate_chase"
+  },
+  "match_state": {
+    "team1": "Team 1",
+    "team2": "Team 2",
+    "inning": 2,
+    "over": "18.0",
+    "ball_in_over": 0,
+    "batting_team": "Team 1",
+    "bowling_team": "Team 2",
+    "runs_total": 164,
+    "wickets_total": 5,
+    "target_runs": 200,
+    "current_run_rate": "9.11",
+    "required_run_rate": "18.00",
+    "momentum_index": "0.18",
+    "score": {
+      "format": "t20"
+    },
+    "raw_data": {
+      "format": "t20",
+      "season_name": "2026",
+      "round_name": "Simulation Suite",
+      "venue": {
+        "name": "Dubai International Stadium",
+        "city": "Dubai",
+        "country": "UAE"
+      },
+      "toss": {
+        "winner_team": "Team 1",
+        "decision": "field"
+      },
+      "teams": {
+        "home": {
+          "name": "Team 1",
+          "ranking": 2
+        },
+        "away": {
+          "name": "Team 2",
+          "ranking": 5
+        }
+      },
+      "batting": [
+        {
+          "name": "Finisher One",
+          "team_name": "Team 1",
+          "strike_rate": 168.0,
+          "active": true
+        },
+        {
+          "name": "Finisher Two",
+          "team_name": "Team 1",
+          "strike_rate": 154.0,
+          "active": true
+        }
+      ]
+    }
+  }
+}

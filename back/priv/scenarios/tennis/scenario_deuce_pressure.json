@@ -1,0 +1,69 @@
+{
+  "get_livescore": {
+    "success": 1,
+    "result": [
+      {
+        "event_key": "sim-deuce-001",
+        "event_live": "1",
+        "event_status": "Set 1",
+        "event_first_player": "Ayesha Khan",
+        "event_second_player": "Sara Noor",
+        "first_player_key": "p1-sim-deuce",
+        "second_player_key": "p2-sim-deuce",
+        "event_serve": "Ayesha Khan",
+        "event_game_result": "40 - 40",
+        "event_final_result": "5 - 4",
+        "event_date": "2026-03-30",
+        "event_time": "19:42",
+        "tournament_name": "Simulation Invitational",
+        "event_round": "Quarter Final",
+        "event_court": "Center Court",
+        "scores": [
+          {
+            "set": "1",
+            "score_first": "5",
+            "score_second": "4",
+            "score_tiebreak": "0"
+          }
+        ],
+        "pointbypoint": [
+          {
+            "set_number": "1",
+            "number_game": "10",
+            "score": "40-40",
+            "serve": "Ayesha Khan",
+            "break_point": "0",
+            "set_point": "0",
+            "match_point": "0",
+            "points": [
+              "15-0",
+              "15-15",
+              "30-15",
+              "30-30",
+              "40-30",
+              "40-40"
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "get_live_odds": {
+    "success": 1,
+    "result": [
+      {
+        "event_key": "sim-deuce-001",
+        "odd_date": "2026-03-30",
+        "odd_time": "19:42:00",
+        "match_winner": [
+          { "name": "Ayesha Khan", "odd": "1.95" },
+          { "name": "Sara Noor", "odd": "1.87" }
+        ],
+        "next_game_winner": [
+          { "name": "Ayesha Khan", "odd": "1.78" },
+          { "name": "Sara Noor", "odd": "2.02" }
+        ]
+      }
+    ]
+  }
+}

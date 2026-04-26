@@ -1,0 +1,47 @@
+# Node
+node_modules/
+.next/
+next/.next/
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+ai_engine/.venv/
+ai_engine/__pycache__/
+ai_engine/cricket/__pycache__/
+ai_engine/football/__pycache__/
+ai_engine/assistant/__pycache__/
+ai_engine/scripts/__pycache__/
+tests/__pycache__/
+
+# Elixir/Phoenix
+back/_build/
+back/deps/
+back/priv/static/assets/
+
+# Rust
+scraper/target/
+
+# Secrets
+.env
+scraper/.env
+back/config/prod.secret.exs
+
+# SQLite
+*.sqlite3
+
+# Large binaries / images at root
+*.png
+*.zip
+fg/*.png
+fg/*.zip
+fg/f
+fg/ui
+pht/
+
+# Misc
+*.log
+.DS_Store
+ai.d

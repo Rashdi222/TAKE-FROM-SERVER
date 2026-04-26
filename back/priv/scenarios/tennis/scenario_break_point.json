@@ -1,0 +1,69 @@
+{
+  "get_livescore": {
+    "success": 1,
+    "result": [
+      {
+        "event_key": "sim-break-001",
+        "event_live": "1",
+        "event_status": "Set 2",
+        "event_first_player": "Lina Azhar",
+        "event_second_player": "Eva Marin",
+        "first_player_key": "p1-sim-break",
+        "second_player_key": "p2-sim-break",
+        "event_serve": "Lina Azhar",
+        "event_game_result": "30 - 40",
+        "event_final_result": "6 - 3, 2 - 2",
+        "event_date": "2026-03-30",
+        "event_time": "20:24",
+        "tournament_name": "Simulation Open",
+        "event_round": "Round of 16",
+        "event_court": "Court Two",
+        "break_point": "1",
+        "scores": [
+          {
+            "set": "1",
+            "score_first": "6",
+            "score_second": "3",
+            "score_tiebreak": "0"
+          },
+          {
+            "set": "2",
+            "score_first": "2",
+            "score_second": "2",
+            "score_tiebreak": "0"
+          }
+        ],
+        "pointbypoint": [
+          {
+            "set_number": "2",
+            "number_game": "5",
+            "score": "30-40",
+            "serve": "Lina Azhar",
+            "break_point": "1",
+            "set_point": "0",
+            "match_point": "0",
+            "points": ["15-0", "15-15", "30-15", "30-30", "30-40"]
+          }
+        ]
+      }
+    ]
+  },
+  "get_live_odds": {
+    "success": 1,
+    "result": [
+      {
+        "event_key": "sim-break-001",
+        "odd_date": "2026-03-30",
+        "odd_time": "20:24:00",
+        "match_winner": [
+          { "name": "Lina Azhar", "odd": "1.72" },
+          { "name": "Eva Marin", "odd": "2.15" }
+        ],
+        "next_game_winner": [
+          { "name": "Lina Azhar", "odd": "2.35" },
+          { "name": "Eva Marin", "odd": "1.55" }
+        ]
+      }
+    ]
+  }
+}

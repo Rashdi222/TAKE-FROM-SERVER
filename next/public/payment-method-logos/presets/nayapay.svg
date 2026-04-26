@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128">
+  <rect width="128" height="128" rx="24" fill="#0f172a"/>
+  <rect x="18" y="18" width="92" height="92" rx="22" fill="#14b8a6"/>
+  <text x="64" y="60" text-anchor="middle" font-size="18" font-family="Arial, sans-serif" font-weight="700" fill="#001b18">NAYA</text>
+  <text x="64" y="82" text-anchor="middle" font-size="16" font-family="Arial, sans-serif" font-weight="700" fill="#001b18">PAY</text>
+</svg>

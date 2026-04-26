@@ -1,0 +1,63 @@
+{
+  "trigger": {
+    "event_type": "dot_ball",
+    "severity": "moderate",
+    "reason": "simulation_dot_ball_pressure"
+  },
+  "match_state": {
+    "team1": "Team 1",
+    "team2": "Team 2",
+    "inning": 2,
+    "over": "14.4",
+    "ball_in_over": 4,
+    "batting_team": "Team 1",
+    "bowling_team": "Team 2",
+    "runs_total": 121,
+    "wickets_total": 3,
+    "target_runs": 168,
+    "current_run_rate": "8.25",
+    "required_run_rate": "10.55",
+    "momentum_index": "-0.08",
+    "score": {
+      "format": "t20"
+    },
+    "raw_data": {
+      "format": "t20",
+      "season_name": "2026",
+      "round_name": "Simulation Suite",
+      "venue": {
+        "name": "Sharjah Cricket Stadium",
+        "city": "Sharjah",
+        "country": "UAE"
+      },
+      "toss": {
+        "winner_team": "Team 2",
+        "decision": "field"
+      },
+      "teams": {
+        "home": {
+          "name": "Team 1",
+          "ranking": 2
+        },
+        "away": {
+          "name": "Team 2",
+          "ranking": 6
+        }
+      },
+      "batting": [
+        {
+          "name": "Set Batter",
+          "team_name": "Team 1",
+          "strike_rate": 148.0,
+          "active": true
+        },
+        {
+          "name": "Support Batter",
+          "team_name": "Team 1",
+          "strike_rate": 136.0,
+          "active": true
+        }
+      ]
+    }
+  }
+}

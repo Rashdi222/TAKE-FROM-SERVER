@@ -1,0 +1,21 @@
+export { publicApi } from "./scopes/public";
+export { userApi } from "./scopes/user";
+export { masterAdminApi } from "./scopes/masterAdmin";
+export { superAdminApi } from "./scopes/superAdmin";
+
+export * from "./errors";
+export * from "./response";
+export * from "./types/auth";
+export * from "./types/matches";
+export * from "./types/odds";
+export * from "./types/bets";
+export * from "./types/payments";
+export * from "./types/providers";
+export * from "./types/sportsData";
+export * from "./types/settings";
+export * from "./types/transactions";
+export * from "./types/tennis";
+export * from "./types/reports";
+export * from "./types/resetSupport";
+export * from "./types/assistant";
+export * from "./types/multiSource";
