@@ -32,27 +32,16 @@ export function AdminOddsControls({
   const handleToggle = async () => {
     try {
       await toggle.mutateAsync();
-      showToast({
-        title: odd.is_active ? "Odds row suspended" : "Odds row resumed",
-        description: String(odd.outcome || odd.selection_key || "Selection"),
-      });
+      showToast(`${odd.is_active ? "Odds row suspended" : "Odds row resumed"}: ${String(odd.outcome || odd.selection_key || "Selection")}`, "success");
     } catch (error) {
-      showToast({
-        title: "Odds action failed",
-        description: error instanceof Error ? error.message : "Unable to update row state.",
-        variant: "error",
-      });
+      showToast(`Odds action failed: ${error instanceof Error ? error.message : "Unable to update row state."}`, "error");
     }
   };
 
   const handleModify = async () => {
     const parsedPrice = parseFloat(price);
     if (isNaN(parsedPrice) || parsedPrice < 1.01 || parsedPrice > 50) {
-      showToast({
-        title: "Invalid odds value",
-        description: "Odds must be between 1.01 and 50.00.",
-        variant: "error",
-      });
+      showToast("Invalid odds value" + ": " + "Odds must be between 1.01 and 50.00.", "error");
       return;
     }
 
@@ -68,17 +57,10 @@ export function AdminOddsControls({
           override_source: "live_command_center",
         },
       });
-      showToast({
-        title: "Odds row updated",
-        description: `Saved ${String(odd.outcome || odd.selection_key || "selection")} at ${price}`,
-      });
+      showToast(`Odds row updated: Saved ${String(odd.outcome || odd.selection_key || "selection")} at ${price}`, "success");
       setOpen(false);
     } catch (error) {
-      showToast({
-        title: "Modify failed",
-        description: error instanceof Error ? error.message : "Unable to modify this odds row.",
-        variant: "error",
-      });
+      showToast(`Modify failed: ${error instanceof Error ? error.message : "Unable to modify this odds row."}`, "error");
     }
   };
 

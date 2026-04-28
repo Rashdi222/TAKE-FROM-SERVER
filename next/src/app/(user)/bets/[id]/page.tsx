@@ -19,7 +19,7 @@ export default function BetDetailPage({ params }: { params: Promise<{ id: string
   const cancelBet = useCancelBet();
   const [showCancelModal, setShowCancelModal] = useState(false);
 
-  const bet = data?.data;
+  const bet = (data as { data?: import("@/lib/api/types/bets").Bet } | undefined)?.data;
   const currency = String((profileData as { data?: { account_currency?: string } } | undefined)?.data?.account_currency ?? "USD");
   const canCancel = bet && (bet.status === "pending" || bet.status === "active");
 

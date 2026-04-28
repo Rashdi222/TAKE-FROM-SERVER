@@ -120,7 +120,7 @@ export function LiveFootballMatchDashboard({
             ? displayMode === "full"
               ? "space-y-4 px-4 py-4"
               : "px-4 py-4"
-            : "mx-auto grid max-w-7xl gap-6 px-4 py-5 sm:px-6 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-8 lg:py-8"
+            : "mx-auto max-w-7xl px-4 py-5 sm:px-6 lg:px-8 lg:py-8"
         }
         >
         {showHud ? (
@@ -152,14 +152,6 @@ export function LiveFootballMatchDashboard({
           ) : (
             <FootballMarketBoard store={store} onSelect={setActiveQuote} />
           )}
-        </div>
-        ) : null}
-
-        {!embedded && showBoard ? (
-        <div className="hidden lg:block">
-          <Card variant="surface-1" className={embedded ? "sticky top-4 p-4 text-sm text-[var(--c-text-muted)]" : "sticky top-28 p-4 text-sm text-[var(--c-text-muted)]"}>
-            Select a football live rate to load the atomic bet slip. The quote carries the current state version and odds version so stale lines are rejected safely.
-          </Card>
         </div>
         ) : null}
       </div>

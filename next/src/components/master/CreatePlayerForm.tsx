@@ -33,7 +33,7 @@ export function CreatePlayerForm() {
     name: code,
     symbol: code,
     flag: "•",
-    kind: code === "USDT" ? "crypto" : "fiat",
+    kind: (code === "USDT" ? "crypto" : "fiat") as "fiat" | "crypto",
   }));
   const selectedCurrency = supportedCurrencies.some((currency) => currency.code === formData.account_currency)
     ? formData.account_currency

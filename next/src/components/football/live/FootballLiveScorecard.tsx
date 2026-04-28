@@ -55,7 +55,7 @@ export const FootballLiveScorecard = memo(function FootballLiveScorecard({
         </div>
       </div>
 
-      <div className={["mt-5 grid gap-3 sm:gap-4", compact ? "" : "lg:grid-cols-[1fr_auto_1fr] lg:items-center"].join(" ")}>
+      <div className={["mt-4 grid gap-3 sm:gap-4", compact ? "" : "lg:grid-cols-[1fr_auto_1fr] lg:items-center"].join(" ")}>
         <TeamBlock name={String(match.team1 || "Home")} score={String(score.home)} align="left" />
         <div className="text-center">
           <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-[var(--c-text-faint)]">Match Clock</div>
@@ -167,9 +167,9 @@ function DataHealthDot({
 
 function TeamBlock({ name, score, align }: { name: string; score: string; align: "left" | "right" }) {
   return (
-    <div className={["rounded-[var(--r-xl)] border border-white/8 bg-[rgba(255,255,255,0.03)] px-4 py-4", align === "right" ? "text-right" : ""].join(" ")}>
-      <div className="truncate text-sm font-semibold text-[var(--c-text-muted)]">{name}</div>
-      <div className="mt-2 text-4xl font-semibold tracking-[-0.06em] text-white sm:text-5xl">{score}</div>
+    <div className={["rounded-[var(--r-xl)] border border-white/8 bg-[rgba(255,255,255,0.03)] px-4 py-3.5", align === "right" ? "text-right" : ""].join(" ")}>
+      <div className="truncate text-[11px] font-semibold uppercase tracking-[0.18em] text-[var(--c-text-faint)]">{name}</div>
+      <div className="mt-2 text-3xl font-semibold tracking-[-0.06em] text-white sm:text-4xl">{score}</div>
     </div>
   );
 }

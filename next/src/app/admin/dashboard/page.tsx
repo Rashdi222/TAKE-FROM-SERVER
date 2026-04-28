@@ -69,10 +69,10 @@ export default function SuperAdminDashboardPage() {
 
           <PendingPaymentsWidget
             summary={{
-              pending_deposits: Number(stats.pending_deposits ?? 0),
-              pending_withdrawals: Number(stats.pending_withdrawals ?? 0),
-              stale_pending_count: Number(stats.stale_pending_payments ?? 0),
-              oldest_pending_at: typeof stats.oldest_pending_payment_at === "string" ? stats.oldest_pending_payment_at : null,
+              pending_deposits: Number(stats?.pending_deposits ?? 0),
+              pending_withdrawals: Number(stats?.pending_withdrawals ?? 0),
+              stale_pending_count: Number(stats?.stale_pending_payments ?? 0),
+              oldest_pending_at: typeof stats?.oldest_pending_payment_at === "string" ? stats.oldest_pending_payment_at : null,
             }}
           />
 

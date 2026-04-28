@@ -68,8 +68,8 @@ export function extractLiveBatters(match: Match) {
 
   const parsed = batting
     .map((entry) => toBatter(entry))
-    .filter(Boolean)
-    .map((entry) => withLineupRole(entry, lineupIndex)) as LiveBatter[];
+    .filter((entry): entry is LiveBatter => entry !== null)
+    .map((entry) => withLineupRole(entry, lineupIndex));
 
   const fallback = fallbackBattersFromBallFeed(match, lineupIndex);
   const source = parsed.length ? parsed : fallback;
@@ -90,8 +90,8 @@ export function extractLiveBowler(match: Match) {
   const lineupIndex = lineupRoleIndex(match);
   const parsed = bowling
     .map((entry) => toBowler(entry))
-    .filter(Boolean)
-    .map((entry) => withLineupRole(entry, lineupIndex)) as LiveBowler[];
+    .filter((entry): entry is LiveBowler => entry !== null)
+    .map((entry) => withLineupRole(entry, lineupIndex));
   if (parsed.length) return parsed.find((entry) => entry.active) || parsed[0] || null;
   return fallbackBowlerFromBallFeed(match, lineupIndex);
 }
@@ -255,7 +255,7 @@ function lineupRoleIndex(match: Match) {
   const context = extractCricketContext(match);
   const lineup = Array.isArray(context?.lineup?.lineup) ? context?.lineup?.lineup : [];
   return lineup.reduce<Record<string, LineupRole>>((acc, entry) => {
-    const name = normalizeName(entry.player_name);
+    const name = normalizeName(entry.player_name ?? null);
     if (!name) return acc;
     acc[name] = {
       role: normalizeRoleLabel(asString(entry.position) || asString(entry.role)),

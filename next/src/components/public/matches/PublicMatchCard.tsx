@@ -38,7 +38,7 @@ export function PublicMatchCard({ match }: PublicMatchCardProps) {
       <Card
         variant="surface-2"
         className={[
-          "group relative h-full overflow-hidden border-[var(--c-border)] p-3.5 transition-all duration-300 sm:p-4",
+          "group relative h-full overflow-hidden border-[var(--c-border)] p-3 transition-all duration-300 sm:p-4",
           "hover:-translate-y-1 hover:border-[var(--c-accent)] hover:shadow-[0_18px_44px_rgba(0,0,0,0.24)]",
           tone === "live"
             ? "bg-[radial-gradient(circle_at_top_right,rgba(255,77,79,0.18),transparent_34%),linear-gradient(180deg,rgba(255,77,79,0.12),rgba(255,255,255,0.02))] before:pointer-events-none before:absolute before:right-4 before:top-4 before:h-2.5 before:w-2.5 before:rounded-full before:bg-[rgba(255,77,79,0.88)] before:shadow-[0_0_0_0_rgba(255,77,79,0.48)] before:animate-[ping_2.4s_ease-out_infinite]"
@@ -61,13 +61,13 @@ export function PublicMatchCard({ match }: PublicMatchCardProps) {
           <Tag status={match.status} className="shrink-0" />
         </div>
 
-        <div className="mt-3.5 space-y-2.5">
+        <div className="mt-3 grid gap-2">
           <TeamRow label={String(match.team1 ?? "-")} logo={match.team1_logo} accent={tone === "live"} />
           <TeamRow label={String(match.team2 ?? "-")} logo={match.team2_logo} accent={tone === "live"} />
         </div>
 
         {isLive && scoreSummary ? (
-          <div className="mt-4 flex flex-wrap items-center gap-2">
+          <div className="mt-3 flex flex-wrap items-center gap-2">
             <span className="inline-flex items-center rounded-full border border-[rgba(255,77,79,0.24)] bg-[rgba(255,77,79,0.1)] px-3 py-1.5 text-xs font-semibold text-[var(--c-danger)]">
               {scoreSummary}
             </span>
@@ -80,7 +80,7 @@ export function PublicMatchCard({ match }: PublicMatchCardProps) {
         ) : null}
 
         {supportingChips.length > 0 ? (
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-3 flex flex-wrap gap-2">
             {supportingChips.map((chip) => (
               <span
                 key={chip}
@@ -97,7 +97,7 @@ export function PublicMatchCard({ match }: PublicMatchCardProps) {
           </div>
         ) : null}
 
-        <div className="mt-4.5 flex items-end justify-between gap-3">
+        <div className="mt-3.5 flex items-end justify-between gap-3">
           <div className="min-w-0">
             <div className="text-sm font-semibold text-[var(--c-text)]">{matchTimeLabel(match)}</div>
             {!isLive && meta ? <div className="mt-1 truncate text-xs text-[var(--c-text-muted)]">{meta}</div> : null}
@@ -122,7 +122,7 @@ function TeamRow({ label, logo, accent }: { label: string; logo?: string | null;
   return (
     <div
       className={[
-        "flex items-center gap-3 rounded-[1.15rem] border px-3 py-2.5",
+        "flex items-center gap-2.5 rounded-[1.05rem] border px-3 py-2",
         accent
           ? "border-[rgba(255,77,79,0.18)] bg-[rgba(255,255,255,0.03)]"
           : "border-[rgba(255,255,255,0.06)] bg-[rgba(255,255,255,0.025)]",
@@ -134,14 +134,14 @@ function TeamRow({ label, logo, accent }: { label: string; logo?: string | null;
           alt={label}
           width={36}
           height={36}
-          className="h-9 w-9 rounded-full border border-[var(--c-border)] bg-[var(--c-surface-1)] object-cover"
+          className="h-8 w-8 rounded-full border border-[var(--c-border)] bg-[var(--c-surface-1)] object-cover"
         />
       ) : (
-        <div className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--c-border)] bg-[var(--c-surface-1)] text-[11px] font-bold uppercase text-[var(--c-text-faint)]">
+        <div className="flex h-8 w-8 items-center justify-center rounded-full border border-[var(--c-border)] bg-[var(--c-surface-1)] text-[10px] font-bold uppercase text-[var(--c-text-faint)]">
           {label.slice(0, 2)}
         </div>
       )}
-      <div className="min-w-0 truncate text-[15px] font-semibold text-[var(--c-text)] sm:text-base">{label}</div>
+      <div className="min-w-0 truncate text-sm font-semibold text-[var(--c-text)] sm:text-[15px]">{label}</div>
     </div>
   );
 }

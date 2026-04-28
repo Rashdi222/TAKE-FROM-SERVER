@@ -30,7 +30,7 @@ export default function EditMasterPaymentMethodPage() {
       submitLabel="Update Method"
       initialMethod={method}
       isPending={updateMethod.isPending}
-      onUploadLogo={(body) => uploadLogo.mutateAsync(body)}
+      onUploadLogo={(body) => uploadLogo.mutateAsync(body) as Promise<{ data?: { logo_path?: string } } | { logo_path?: string }>}
       onSubmit={(values) => updateMethod.mutateAsync({ id: methodId, body: values }).then(() => undefined)}
     />
   );

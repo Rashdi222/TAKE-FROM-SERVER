@@ -32,7 +32,7 @@ defmodule BackWeb.OddsController do
     filters =
       []
       |> maybe_filter(:bet_type, params["bet_type"])
-      |> maybe_filter(:active_only, params["active_only"])
+      |> maybe_filter(:active_only, default_public_active_only(params, include_unpublished))
       |> maybe_filter(:visibility_status, params["visibility_status"])
       |> maybe_filter(:source_type, params["source_type"])
       |> maybe_filter(:include_unpublished, include_unpublished)
@@ -63,6 +63,10 @@ defmodule BackWeb.OddsController do
         :ok
     end
   end
+
+  defp default_public_active_only(%{"active_only" => value}, _include_unpublished), do: value
+  defp default_public_active_only(_params, true), do: nil
+  defp default_public_active_only(_params, false), do: "true"
 
   defp published_odds_stale?(match_id) do
     latest_updated_at =

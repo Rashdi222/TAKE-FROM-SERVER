@@ -891,7 +891,7 @@ defmodule Back.Tennis do
   end
 
   defp public_live_visible?(state) do
-    auto_public_live?(state) or live_status?(state)
+    live_status?(state)
   end
 
   defp live_status?(state) do
@@ -907,8 +907,20 @@ defmodule Back.Tennis do
       |> String.downcase()
       |> String.trim()
 
-    status in ["live", "in_play", "set", "set 1", "set 2", "set 3", "set 4", "set 5"] or
-      String.contains?(event_status, "set") or String.contains?(event_status, "live")
+    terminal? =
+      Enum.any?(
+        ["finished", "ended", "closed", "cancel", "abandon", "retired", "walkover", "wo"],
+        fn token -> String.contains?(status, token) or String.contains?(event_status, token) end
+      )
+
+    if terminal? do
+      false
+    else
+      status in ["live", "in_play", "set", "set 1", "set 2", "set 3", "set 4", "set 5"] or
+        String.match?(event_status, ~r/^set(\s+\d+)?$/) or
+        String.contains?(event_status, "in play") or
+        String.contains?(event_status, "live")
+    end
   end
 
   defp ensure_tracked_for_publish(event_key) do

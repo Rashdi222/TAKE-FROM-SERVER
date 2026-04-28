@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import {
@@ -80,48 +79,6 @@ export function UserMobileNav() {
 
   return (
     <>
-      {/* Horizontal sport scroll strip — shown above bottom nav */}
-      <div className="pointer-events-none fixed inset-x-0 bottom-[4.5rem] z-30 md:hidden">
-        <div className="pointer-events-auto overflow-x-auto scrollbar-none px-3 pb-1">
-          <div className="flex gap-2" style={{ width: "max-content" }}>
-            {SPORTBOOK_SPORTS.map((sport) => {
-              const active = pathname.startsWith(sport.href);
-              return (
-                <Link
-                  key={sport.id}
-                  href={sport.href}
-                  prefetch
-                  className={[
-                    "relative flex h-14 w-24 shrink-0 flex-col items-start justify-end overflow-hidden rounded-2xl border p-2 transition-all",
-                    active
-                      ? "border-[rgba(161,121,241,0.5)] shadow-[0_8px_24px_rgba(99,32,232,0.28)]"
-                      : "border-[rgba(255,255,255,0.1)]",
-                  ].join(" ")}
-                >
-                  {/* Background sport image */}
-                  <Image
-                    src={sport.image}
-                    alt={sport.label}
-                    fill
-                    className="object-cover object-center opacity-40"
-                    sizes="96px"
-                  />
-                  {/* Gradient overlay */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[rgba(10,8,20,0.85)] via-[rgba(10,8,20,0.3)] to-transparent" />
-                  {/* Label */}
-                  <span className={`relative z-10 text-[11px] font-semibold tracking-[0.04em] ${active ? "text-white" : "text-[rgba(255,255,255,0.75)]"}`}>
-                    {sport.shortLabel}
-                  </span>
-                  {active && (
-                    <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-[var(--c-accent)]" />
-                  )}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-
       {/* Bottom nav bar */}
       <div className="pointer-events-none fixed inset-x-0 bottom-0 z-40 px-3 pb-3 md:hidden">
         <div className="pointer-events-auto relative rounded-[1.75rem] border border-[var(--c-border-strong)] bg-[rgba(20,18,38,0.86)] px-3 pb-3 pt-2 shadow-[0_-12px_40px_rgba(0,0,0,0.32)] backdrop-blur-[20px]">

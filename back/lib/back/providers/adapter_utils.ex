@@ -19,9 +19,9 @@ defmodule Back.Providers.AdapterUtils do
     key = normalize_status_key(value)
 
     cond do
-      key in live_status_keys() or live_status_key?(key) -> "live"
       key in completed_status_keys() -> "completed"
       key in cancelled_status_keys() -> "cancelled"
+      key in live_status_keys() or live_status_key?(key) -> "live"
       true -> "upcoming"
     end
   end
@@ -188,9 +188,15 @@ defmodule Back.Providers.AdapterUtils do
     [
       "cancelled",
       "canc",
+      "aban",
+      "aban.",
       "abandoned",
       "abd",
       "awd",
+      "postp",
+      "postp.",
+      "postponed",
+      "pst",
       "wo",
       "no result",
       "no_result"
@@ -200,12 +206,17 @@ defmodule Back.Providers.AdapterUtils do
   defp live_status_key?(key) when is_binary(key) do
     normalized = String.trim(key)
 
+    if String.contains?(normalized, "not live") or String.contains?(normalized, "non live") or
+         String.contains?(normalized, "live ended") or String.contains?(normalized, "ended live") do
+      false
+    else
     normalized == "1" or
       String.contains?(normalized, "live") or
       String.contains?(normalized, "in play") or
       String.contains?(normalized, "inplay") or
       String.contains?(normalized, "innings") or
       String.contains?(normalized, "super over")
+    end
   end
 
   defp live_status_key?(_), do: false

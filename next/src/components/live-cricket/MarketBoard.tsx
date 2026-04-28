@@ -116,26 +116,26 @@ const CommandMarketRow = memo(function CommandMarketRow({
   const rowVolume = useMemo(() => computeRowVolume(marketOdds), [marketOdds]);
 
   return (
-    <div className="rounded-[1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.012))] px-3 py-2.5 shadow-[0_10px_30px_rgba(0,0,0,0.14)] backdrop-blur-xl">
-        <div className="grid gap-2.5 xl:grid-cols-[180px_minmax(0,1fr)] xl:items-center">
+    <div className="rounded-[1rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.035),rgba(255,255,255,0.012))] px-2.5 py-2 shadow-[0_10px_24px_rgba(0,0,0,0.14)] backdrop-blur-xl">
+        <div className="grid gap-2 xl:grid-cols-[170px_minmax(0,1fr)] xl:items-center">
         <div className="xl:pr-2">
-          <div className="truncate text-[13px] font-semibold tracking-[-0.03em] text-white">{humanizeLabel(group.label)}</div>
-          <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px]">
-            <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-3 py-1 font-medium text-cyan-100">
+          <div className="truncate text-[12px] font-semibold tracking-[-0.02em] text-white">{humanizeLabel(group.label)}</div>
+          <div className="mt-1 flex flex-wrap items-center gap-1 text-[10px]">
+            <span className="rounded-full border border-cyan-400/20 bg-cyan-400/10 px-2.5 py-0.5 font-medium text-cyan-100">
               {rowVolume}
             </span>
-            <span className="rounded-full border border-white/10 bg-white/[0.04] px-2.5 py-1 font-medium text-white/65">
+            <span className="rounded-full border border-white/10 bg-white/[0.04] px-2 py-0.5 font-medium text-white/65">
               {marketOdds.length} selections
             </span>
             {marketSuspension ? (
-              <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-1 font-medium text-amber-100">
+              <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2 py-0.5 font-medium text-amber-100">
                 {String(marketSuspension.reason || "market suspended").replace(/_/g, " ")}
               </span>
             ) : null}
           </div>
         </div>
 
-        <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-1.5 xl:border-l xl:border-white/8 xl:pl-3">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(132px,1fr))] gap-1.5 xl:border-l xl:border-white/8 xl:pl-3">
           {group.oddsIds.map((oddsId) => (
             <CommandOddsButton key={oddsId} store={store} oddsId={oddsId} onSelect={onSelect} />
           ))}
@@ -260,7 +260,7 @@ const CommandOddsButton = memo(function CommandOddsButton({ store, oddsId, onSel
       onClick={handleClick}
       disabled={disabled}
       className={[
-        "min-w-0 rounded-[0.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.015))] px-2.5 py-2 text-left transition-all duration-300 ease-out",
+        "min-w-0 rounded-[0.9rem] border border-white/10 bg-[linear-gradient(180deg,rgba(255,255,255,0.045),rgba(255,255,255,0.015))] px-2.5 py-1.5 text-left transition-all duration-300 ease-out",
         toneClass,
         disabled
           ? "cursor-not-allowed border-white/8 bg-[repeating-linear-gradient(135deg,rgba(148,163,184,0.16)_0,rgba(148,163,184,0.16)_10px,rgba(255,255,255,0.03)_10px,rgba(255,255,255,0.03)_20px)] opacity-55 shadow-none"
@@ -269,7 +269,7 @@ const CommandOddsButton = memo(function CommandOddsButton({ store, oddsId, onSel
     >
       <div className="flex items-start justify-between gap-2">
         <div className="min-w-0">
-          <div className="whitespace-normal break-words text-[10px] font-semibold uppercase tracking-[0.12em] text-white/55">
+          <div className="whitespace-normal break-words text-[10px] font-semibold uppercase tracking-[0.1em] text-white/55">
             {selectionLabel}
           </div>
           {projectedLine ? (
@@ -277,7 +277,7 @@ const CommandOddsButton = memo(function CommandOddsButton({ store, oddsId, onSel
               Line {projectedLine}
             </div>
           ) : null}
-          <div className="mt-1 text-[1.35rem] font-semibold leading-none tracking-[-0.05em] text-white">{formatDecimal(quotedPrice)}</div>
+          <div className="mt-1 text-[1.2rem] font-semibold leading-none tracking-[-0.04em] text-white">{formatDecimal(quotedPrice)}</div>
         </div>
         <div className="flex flex-col items-end gap-1">
           {probabilityTag ? <ProbabilityTag text={probabilityTag.text} tone={probabilityTag.tone} /> : null}
@@ -542,7 +542,7 @@ function probabilityTagForOdds(odds: Odds, quotedPrice: number) {
 
   if (!Number.isFinite(quotedPrice) || quotedPrice <= 1) return null;
   const implied = Math.min(99, Math.max(1, Math.round((1 / quotedPrice) * 100)));
-  const tone = implied >= 65 ? "high" : implied >= 45 ? "medium" : "low";
+  const tone: "high" | "medium" | "low" = implied >= 65 ? "high" : implied >= 45 ? "medium" : "low";
   return { text: `${implied}% ${tone === "high" ? "High" : tone === "medium" ? "Mid" : "Live"}`, tone };
 }
 

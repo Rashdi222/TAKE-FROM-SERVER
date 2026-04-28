@@ -14,7 +14,7 @@ export default function ConfigurePaymentMethodPage() {
       backHref="/admin/payments/methods"
       submitLabel="Save Method"
       isPending={configureMethod.isPending}
-      onUploadLogo={(body) => uploadLogo.mutateAsync(body)}
+      onUploadLogo={(body) => uploadLogo.mutateAsync(body) as Promise<{ data?: { logo_path?: string } } | { logo_path?: string }>}
       onSubmit={(values) => configureMethod.mutateAsync(values).then(() => undefined)}
     />
   );

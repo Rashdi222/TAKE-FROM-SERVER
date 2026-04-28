@@ -7,7 +7,7 @@ export function PublishButton({ matchId }: { matchId: string }) {
   const publish = usePublishOdds(matchId);
 
   return (
-    <Button variant="primary" onClick={() => publish.mutate()} disabled={publish.isPending}>
+    <Button variant="primary" onClick={() => publish.mutate(undefined)} disabled={publish.isPending}>
       {publish.isPending ? "Publishing..." : "Publish Drafts"}
     </Button>
   );

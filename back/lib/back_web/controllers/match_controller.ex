@@ -27,6 +27,7 @@ defmodule BackWeb.MatchController do
       |> maybe_filter(:limit, limit)
       |> maybe_filter(:offset, offset)
       |> maybe_add_state_bucket(params["state_bucket"])
+      |> maybe_require_public_odds(params)
 
     {matches, meta} = list_matches_with_meta(filters, params, limit, offset)
     json(conn, %{data: Enum.map(matches, &match_json/1), meta: meta})
@@ -280,7 +281,7 @@ defmodule BackWeb.MatchController do
   defp competition_json(m) do
     case m.competition_feed_id do
       nil ->
-        nil
+        provider_competition_json(m)
 
       id ->
         %{
@@ -288,6 +289,22 @@ defmodule BackWeb.MatchController do
           name: get_in(m.raw_data || %{}, ["_competition_feed", "name"]),
           competition_key: get_in(m.raw_data || %{}, ["_competition_feed", "competition_key"])
         }
+    end
+  end
+
+  defp provider_competition_json(m) do
+    raw = m.raw_data || %{}
+    name = get_in(raw, ["league", "name"]) || raw["competition_name"] || raw["league_name"]
+    key = get_in(raw, ["league", "id"]) || raw["league_id"] || name
+
+    if blank?(name) do
+      nil
+    else
+      %{
+        id: nil,
+        name: name,
+        competition_key: provider_competition_key(m.sport, key)
+      }
     end
   end
 
@@ -329,6 +346,14 @@ defmodule BackWeb.MatchController do
   defp maybe_filter(filters, :limit, val), do: maybe_add_limit(filters, val)
   defp maybe_filter(filters, :offset, val), do: maybe_add_offset(filters, val)
   defp maybe_filter(filters, key, val), do: [{key, String.to_existing_atom(val)} | filters]
+
+  defp maybe_require_public_odds(filters, %{"quality_mode" => "public"} = params) do
+    # Public match boards should never disappear just because odds are delayed.
+    # Odds can load independently on the detail page and in the match panels.
+    filters
+  end
+
+  defp maybe_require_public_odds(filters, _params), do: filters
 
   defp maybe_add_limit(filters, val) when is_binary(val) do
     case Integer.parse(val) do
@@ -452,7 +477,11 @@ defmodule BackWeb.MatchController do
   defp public_quality(match) do
     team1 = match.team1 |> to_string_safe() |> String.trim()
     team2 = match.team2 |> to_string_safe() |> String.trim()
-    competition_name = get_in(match.raw_data || %{}, ["_competition_feed", "name"])
+    competition_name =
+      get_in(match.raw_data || %{}, ["_competition_feed", "name"]) ||
+        get_in(match.raw_data || %{}, ["league", "name"]) ||
+        get_in(match.raw_data || %{}, ["competition_name"]) ||
+        get_in(match.raw_data || %{}, ["league_name"])
 
     issues =
       []
@@ -479,6 +508,23 @@ defmodule BackWeb.MatchController do
 
   defp maybe_add_issue(issues, true, issue), do: [issue | issues]
   defp maybe_add_issue(issues, false, _issue), do: issues
+
+  defp provider_competition_key(sport, value) do
+    value =
+      value
+      |> to_string_safe()
+      |> String.downcase()
+      |> String.replace(~r/[^a-z0-9]+/, "-")
+      |> String.trim("-")
+
+    sport_key = sport |> to_string_safe() |> String.downcase() |> String.trim()
+
+    cond do
+      value == "" -> nil
+      sport_key == "" -> value
+      true -> sport_key <> "-" <> value
+    end
+  end
 
   defp maybe_warm_tennis_catalog(%{"sport" => "tennis"}) do
     _ =

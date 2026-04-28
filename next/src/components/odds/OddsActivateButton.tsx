@@ -15,7 +15,7 @@ export function OddsActivateButton({
   const toggle = useToggleOddsActive(oddsId, matchId, isActive);
 
   return (
-    <Button variant="secondary" onClick={() => toggle.mutate()} disabled={toggle.isPending}>
+    <Button variant="secondary" onClick={() => toggle.mutate(undefined)} disabled={toggle.isPending}>
       {toggle.isPending ? "Saving..." : isActive ? "Deactivate" : "Activate"}
     </Button>
   );

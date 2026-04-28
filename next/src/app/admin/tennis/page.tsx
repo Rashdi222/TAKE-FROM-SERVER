@@ -171,7 +171,7 @@ export default function AdminTennisCommandCenterPage() {
         tournament_name:
           "tournament_name" in target
             ? target.tournament_name
-            : (target.fixture_snapshot?.tournament_name as string | undefined),
+            : ((target as import("@/lib/api/types/tennis").TennisMatchState).fixture_snapshot?.tournament_name as string | undefined),
         player_1_name: target.player_1_name,
         player_2_name: target.player_2_name,
         start_time: "start_time" in target ? target.start_time : undefined,

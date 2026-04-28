@@ -198,6 +198,14 @@ def build_fancy_markets(
     )
 
     markets: list[dict[str, Any]] = []
+    # Ensure we always have a validity window for auxiliary markets (e.g. FOW),
+    # even when no session windows are emitted (very low balls_remaining, etc.).
+    fow_valid_for_ms = fancy_valid_for_ms(
+        balls_remaining=balls_remaining,
+        wickets_total=wickets_total,
+        overs_window=1,
+        format_name=format_name,
+    )
     for overs in active_windows:
         if balls_remaining is not None and balls_remaining <= 0:
             break
@@ -334,7 +342,7 @@ def build_fancy_markets(
         depth_factor=depth_factor,
         fancy_margin=fancy_margin,
         confidence=confidence,
-        valid_for_ms=valid_for_ms,
+        valid_for_ms=fow_valid_for_ms,
         format_name=format_name,
         over_number=over_number,
     )

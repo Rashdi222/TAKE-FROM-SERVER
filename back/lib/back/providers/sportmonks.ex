@@ -14,21 +14,7 @@ defmodule Back.Providers.Sportmonks do
     "venue",
     "stage",
     "runs",
-    "batting",
-    "bowling",
-    "balls",
-    "scoreboards",
-    "firstumpire",
-    "secondumpire",
-    "referee",
-    "tvumpire",
-    "manofseries",
-    "manofmatch",
-    "tosswon",
-    "lineup",
-    "lineup.player",
-    "batting.batsman",
-    "bowling.bowler"
+    "scoreboards"
   ]
   @detail_includes [
     "localteam",
@@ -246,13 +232,19 @@ defmodule Back.Providers.Sportmonks do
     season_id = feed["season_id"] || feed[:season_id]
 
     if is_binary(season_id) and String.trim(season_id) != "" do
-      case fetch_with_params(
-             config,
-             "/seasons/#{season_id}/fixtures",
-             Map.drop(params, ["filter[league_id]", "filter[season_id]"])
-           ) do
+      stripped_params = Map.drop(params, ["filter[league_id]", "filter[season_id]"])
+
+      case fetch_with_params(config, "/seasons/#{season_id}/fixtures", stripped_params) do
         {:ok, rows} -> {:ok, enrich_fixture_rows(config, rows)}
-        other -> other
+
+        {:error, {:http_error, status, _body}} when status in [400, 404, 422] ->
+          case fetch_with_params(config, "/fixtures", params, include: false) do
+            {:ok, rows} -> {:ok, enrich_fixture_rows(config, rows)}
+            other -> other
+          end
+
+        other ->
+          other
       end
     else
       {:error,
@@ -551,7 +543,10 @@ defmodule Back.Providers.Sportmonks do
     status = normalize_status(raw_status)
 
     cond do
-      status in ["completed", "cancelled"] ->
+      status in ["completed", "cancelled"] or terminal_status_text?(raw_status) ->
+        status
+
+      status == "scheduled" ->
         status
 
       livescores_feed_row?(raw) ->
@@ -563,6 +558,20 @@ defmodule Back.Providers.Sportmonks do
       true ->
         status
     end
+  end
+
+  defp terminal_status_text?(value) do
+    value
+    |> to_string()
+    |> String.downcase()
+    |> String.trim()
+    |> String.replace(~r/[^a-z0-9]+/, " ")
+    |> then(fn status ->
+      status in ["aban", "abandoned", "postp", "postponed", "canc", "cancelled", "no result"] or
+        String.contains?(status, "abandon") or
+        String.contains?(status, "postpon") or
+        String.contains?(status, "cancel")
+    end)
   end
 
   defp live_signal?(live_state, raw) do

@@ -34,16 +34,16 @@ export function MatchActions({
   return (
     <>
       <div className="flex flex-wrap gap-3">
-        <Button variant="primary" onClick={() => startLive.mutate()} disabled={!isUpcoming || startLive.isPending}>
+        <Button variant="primary" onClick={() => startLive.mutate(undefined)} disabled={!isUpcoming || startLive.isPending}>
           {startLive.isPending ? "Starting..." : "Start Live"}
         </Button>
-        <Button variant="secondary" onClick={() => close.mutate()} disabled={!(isUpcoming || isLive) || close.isPending}>
+        <Button variant="secondary" onClick={() => close.mutate(undefined)} disabled={!(isUpcoming || isLive) || close.isPending}>
           {close.isPending ? "Closing..." : "Close Match"}
         </Button>
         <Button variant="secondary" onClick={() => setSettleOpen(true)} disabled={!isClosed || settle.isPending}>
           {settle.isPending ? "Settling..." : "Settle Match"}
         </Button>
-        <Button variant="destructive" onClick={() => cancel.mutate()} disabled={isFinal || cancel.isPending}>
+        <Button variant="destructive" onClick={() => cancel.mutate(undefined)} disabled={isFinal || cancel.isPending}>
           {cancel.isPending ? "Cancelling..." : "Cancel Match"}
         </Button>
       </div>

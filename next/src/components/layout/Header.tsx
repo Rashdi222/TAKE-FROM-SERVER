@@ -112,9 +112,9 @@ export function Header() {
         }}
         animate={hidden ? "hidden" : "visible"}
         transition={{ duration: 0.4, ease: [0.77, 0, 0.175, 1] }}
-        className="fixed inset-x-0 top-3 z-[60] px-3 md:top-4 md:px-4"
+        className="fixed inset-x-0 top-3 z-[60] w-full max-w-full overflow-x-clip px-3 md:top-4 md:px-4"
       >
-        <div className="mx-auto w-full max-w-7xl">
+        <div className="mx-auto w-full max-w-[calc(100vw-1.5rem)] md:max-w-7xl">
         <div className="relative overflow-hidden rounded-[1.6rem] border border-[rgba(161,121,241,0.25)] shadow-[0_8px_32px_rgba(0,0,0,0.4)]">
           {/* Animated mesh gradient background */}
           <motion.div
@@ -364,9 +364,9 @@ export function Header() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
           transition={{ duration: 0.3 }}
-          className="fixed inset-x-0 top-[60px] z-[59] px-3 md:hidden"
+          className="fixed inset-x-0 top-[60px] z-[59] w-full max-w-full overflow-x-clip px-3 md:hidden"
         >
-          <div className="mx-auto w-full max-w-7xl rounded-2xl border border-[rgba(161,121,241,0.25)] bg-[rgba(20,18,38,0.95)] p-4 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-[20px]">
+          <div className="mx-auto w-full max-w-[calc(100vw-1.5rem)] rounded-2xl border border-[rgba(161,121,241,0.25)] bg-[rgba(20,18,38,0.95)] p-4 shadow-[0_8px_32px_rgba(0,0,0,0.4)] backdrop-blur-[20px]">
             <nav className="flex flex-col gap-3">
               <Link
                 href="/matches"

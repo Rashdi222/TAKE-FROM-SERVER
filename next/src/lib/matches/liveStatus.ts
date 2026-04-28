@@ -29,6 +29,7 @@ function nonLiveHoldStatus(match: Match) {
 
   const joined = values.filter(Boolean).join(" ");
 
+  if (/\b(closed|close|finished|finish|ended|end|ft|final|full time)\b/.test(joined)) return true;
   if (/\b(pst|postpon|postponed)\b/.test(joined)) return true;
   if (/\b(canc|cancel|cancelled)\b/.test(joined)) return true;
   if (/\b(abd|abandon|abandoned)\b/.test(joined)) return true;
@@ -104,11 +105,9 @@ function hasRawLiveSignals(match: Match) {
 export function hasLiveSignals(match: Match) {
   if (nonLiveHoldStatus(match)) return false;
   if (toLower(match.status) === "live") return true;
-  if (Boolean(match.in_play_enabled)) return true;
   if (hasCricketLiveSignals(match)) return true;
   if (hasFootballLiveSignals(match)) return true;
   if (hasRawLiveSignals(match)) return true;
-  if (kickoffWindowLive(match)) return true;
   return false;
 }
 

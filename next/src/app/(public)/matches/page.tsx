@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import { MatchesPageClient } from "@/components/public/MatchesPageClient";
 import { buildPublicMetadata } from "@/lib/seo/metadata";
 
@@ -17,5 +18,9 @@ export const metadata: Metadata = buildPublicMetadata({
 });
 
 export default function MatchesPage() {
-  return <MatchesPageClient />;
+  return (
+    <Suspense fallback={null}>
+      <MatchesPageClient />
+    </Suspense>
+  );
 }

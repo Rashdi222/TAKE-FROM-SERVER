@@ -13,10 +13,15 @@ defmodule Back.Providers.ApiSports do
 
   @impl true
   def fetch_live(config),
-    do: fetch(config, Map.get(config, "live_endpoint", "/fixtures"), %{"live" => "all"})
+    do:
+      config
+      |> without_fixture_window_params()
+      |> fetch(Map.get(config, "live_endpoint", "/fixtures"), %{"live" => "all"})
 
   def fetch_live_odds_batch(config) do
-    fetch(config, Map.get(config, "live_odds_endpoint", "/odds/live"))
+    config
+    |> without_fixture_window_params()
+    |> fetch(Map.get(config, "live_odds_endpoint", "/odds/live"))
   end
 
   @impl true
@@ -31,7 +36,7 @@ defmodule Back.Providers.ApiSports do
   @impl true
   def fetch_live_for_feed(config, feed) do
     fetch(
-      config,
+      without_fixture_window_params(config),
       Map.get(config, "live_endpoint", "/fixtures"),
       AdapterUtils.api_sports_feed_params(feed, %{"live" => "all"})
     )
@@ -56,7 +61,7 @@ defmodule Back.Providers.ApiSports do
       else
         endpoint = Map.get(config, "odds_endpoint", "/odds")
 
-        with {:ok, rows} <- fetch(config, endpoint, params) do
+        with {:ok, rows} <- fetch(without_fixture_window_params(config), endpoint, params) do
           {:ok, normalize_odds_rows(rows)}
         end
       end
@@ -64,15 +69,15 @@ defmodule Back.Providers.ApiSports do
   end
 
   def fetch_fixture_events(config, fixture_id) when is_binary(fixture_id) do
-    fetch(config, "/fixtures/events", %{"fixture" => fixture_id})
+    fetch(without_fixture_window_params(config), "/fixtures/events", %{"fixture" => fixture_id})
   end
 
   def fetch_fixture_lineups(config, fixture_id) when is_binary(fixture_id) do
-    fetch(config, "/fixtures/lineups", %{"fixture" => fixture_id})
+    fetch(without_fixture_window_params(config), "/fixtures/lineups", %{"fixture" => fixture_id})
   end
 
   def fetch_fixture_statistics(config, fixture_id) when is_binary(fixture_id) do
-    fetch(config, "/fixtures/statistics", %{"fixture" => fixture_id})
+    fetch(without_fixture_window_params(config), "/fixtures/statistics", %{"fixture" => fixture_id})
   end
 
   def fetch_standings(config, league_id, season_id)
@@ -192,6 +197,13 @@ defmodule Back.Providers.ApiSports do
       {:error, reason} ->
         {:error, reason}
     end
+  end
+
+  defp without_fixture_window_params(config) when is_map(config) do
+    update_in(config, ["params"], fn
+      params when is_map(params) -> Map.drop(params, ["next", "last", :next, :last])
+      other -> other
+    end)
   end
 
   defp ensure_success_body(%{"errors" => errors}) when is_map(errors) and map_size(errors) > 0,
@@ -385,7 +397,7 @@ defmodule Back.Providers.ApiSports do
          true <- Application.get_env(:back, :api_sports_live_odds_direct_fallback_enabled, true) do
       endpoint = Map.get(config, "odds_endpoint", "/odds")
 
-      case fetch(config, endpoint, %{"fixture" => fixture_id}) do
+      case fetch(without_fixture_window_params(config), endpoint, %{"fixture" => fixture_id}) do
         {:ok, rows} ->
           normalized = normalize_odds_rows(rows)
 

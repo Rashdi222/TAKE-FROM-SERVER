@@ -15,7 +15,7 @@ export default function DailyReportPage() {
   const { data: currencyData } = useAccountCurrencies();
   const { data, isLoading } = useSuperAdminDailyReport(date);
   const stats = ((data as { data?: PlatformStats } | undefined)?.data ?? {}) as PlatformStats;
-  const currencies = (currencyData?.data ?? []).filter((currency) => currency.enabled !== false);
+  const currencies = ((currencyData as { data?: import("@/lib/api/types/settings").AccountCurrency[] } | undefined)?.data ?? []).filter((currency) => currency.enabled !== false);
   const currencyBreakdown = (stats.currency_breakdown ?? []).filter((item) =>
     !currencyFilter || item.code === currencyFilter
   );

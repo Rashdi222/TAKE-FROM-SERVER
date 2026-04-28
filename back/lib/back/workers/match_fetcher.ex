@@ -16,10 +16,10 @@ defmodule Back.Workers.MatchFetcher do
   alias BackWeb.MatchChannel
 
   @table :live_match_cache
-  @live_interval_ms 4_000
+  @live_interval_ms 1_000
   @fixtures_interval_ms :timer.minutes(5)
-  @live_cache_ttl_ms 4_000
-  @competition_live_interval_ms 15_000
+  @live_cache_ttl_ms 900
+  @competition_live_interval_ms 2_000
   @competition_fixtures_interval_ms :timer.minutes(5)
   @cricket_live_bootstrap_throttle_ms 12_000
 
@@ -45,6 +45,7 @@ defmodule Back.Workers.MatchFetcher do
   def handle_info(:poll_live, state) do
     maybe_sync_live("scheduled")
     reconcile_kickoff_statuses()
+    reconcile_stale_statuses()
     Process.send_after(self(), :poll_live, @live_interval_ms)
     {:noreply, state}
   end
@@ -60,6 +61,7 @@ defmodule Back.Workers.MatchFetcher do
   def handle_info(:poll_competition_live, state) do
     _ = Providers.sync_due_competition_feeds(:live, :scheduled)
     reconcile_kickoff_statuses()
+    reconcile_stale_statuses()
     Process.send_after(self(), :poll_competition_live, @competition_live_interval_ms)
     {:noreply, state}
   end
@@ -131,6 +133,8 @@ defmodule Back.Workers.MatchFetcher do
                 %{updated_count: updated_count, per_sport: per_sport} =
                   upsert_many(matches, provider.name, kind)
 
+                closed_count = maybe_close_missing_live_matches(provider.name, kind, matches)
+
                 duration = now_ms() - started
 
                 _ =
@@ -142,6 +146,7 @@ defmodule Back.Workers.MatchFetcher do
                     metadata: %{
                       "kind" => to_string(kind),
                       "updated_count" => updated_count,
+                      "closed_count" => closed_count,
                       "per_sport" => per_sport
                     }
                   })
@@ -151,6 +156,7 @@ defmodule Back.Workers.MatchFetcher do
                    provider_id: provider.id,
                    provider_name: provider.name,
                    updated_count: updated_count,
+                   closed_count: closed_count,
                    per_sport: per_sport,
                    duration_ms: duration
                  }}
@@ -312,6 +318,247 @@ defmodule Back.Workers.MatchFetcher do
 
   defp now_ms, do: System.system_time(:millisecond)
 
+  defp maybe_close_missing_live_matches("api_sports", :live, matches) when is_list(matches) do
+    active_ids =
+      matches
+      |> Enum.map(&Map.get(&1, :external_id))
+      |> Enum.reject(&is_nil/1)
+      |> Enum.map(&to_string/1)
+      |> Enum.uniq()
+
+    close_missing_live_matches("api_sports", [:football], active_ids)
+  end
+
+  defp maybe_close_missing_live_matches(_provider_name, _kind, _matches), do: 0
+
+  defp close_missing_live_matches(provider_name, sports, active_external_ids) do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+
+    query =
+      from m in Match,
+        where: m.provider == ^provider_name,
+        where: m.status == :live,
+        where: m.sport in ^sports,
+        where: not is_nil(m.external_id)
+
+    query =
+      case active_external_ids do
+        [] -> query
+        ids -> from m in query, where: m.external_id not in ^ids
+      end
+
+    {count, _} =
+      Repo.update_all(query,
+        set: [
+          status: :closed,
+          in_play_enabled: false,
+          updated_at: now,
+          suspended_at: now,
+          suspension_reason: "provider_live_feed_closed"
+        ]
+      )
+
+    count
+  end
+
+  defp reconcile_stale_statuses do
+    now = DateTime.utc_now() |> DateTime.truncate(:second)
+    football_cutoff = DateTime.add(now, -4 * 60 * 60, :second)
+    old_cricket_cutoff = DateTime.add(now, -7 * 24 * 60 * 60, :second)
+    stale_tennis_cutoff = DateTime.add(now, -2 * 60 * 60, :second)
+    stale_tennis_live_cutoff = DateTime.add(now, -6 * 60 * 60, :second)
+
+    terminal_cricket_statuses = ["Aban.", "Aban", "Postp.", "Postp", "Cancelled", "Finished"]
+    terminal_tennis_statuses = ["finished", "abandoned", "cancelled", "retired", "walkover"]
+    pending_tennis_statuses = ["not started", "scheduled", "ns"]
+
+    {football_closed, _} =
+      from(m in Match,
+        where: m.provider == "api_sports",
+        where: m.sport == :football,
+        where: m.status == :live,
+        where: not is_nil(m.start_time) and m.start_time <= ^football_cutoff
+      )
+      |> Repo.update_all(
+        set: [
+          status: :closed,
+          in_play_enabled: false,
+          updated_at: now,
+          suspended_at: now,
+          suspension_reason: "football_live_duration_guard"
+        ]
+      )
+
+    {cricket_terminal_closed, _} =
+      from(m in Match,
+        where: m.provider == "sportmonks",
+        where: m.sport == :cricket,
+        where: m.status in [:upcoming, :live],
+        where: fragment("?->>'status'", m.raw_data) in ^terminal_cricket_statuses
+      )
+      |> Repo.update_all(
+        set: [
+          status: :closed,
+          in_play_enabled: false,
+          updated_at: now,
+          suspended_at: now,
+          suspension_reason: "sportmonks_terminal_status"
+        ]
+      )
+
+    {old_cricket_closed, _} =
+      from(m in Match,
+        where: m.provider == "sportmonks",
+        where: m.sport == :cricket,
+        where: m.status in [:upcoming, :live],
+        where: not is_nil(m.start_time) and m.start_time <= ^old_cricket_cutoff
+      )
+      |> Repo.update_all(
+        set: [
+          status: :closed,
+          in_play_enabled: false,
+          updated_at: now,
+          suspended_at: now,
+          suspension_reason: "cricket_stale_schedule_guard"
+        ]
+      )
+
+    {future_cricket_scheduled, _} =
+      from(m in Match,
+        where: m.provider == "sportmonks",
+        where: m.sport == :cricket,
+        where: m.status == :live,
+        where: fragment("?->>'status'", m.raw_data) == "NS",
+        where: not is_nil(m.start_time) and m.start_time > ^now
+      )
+      |> Repo.update_all(
+        set: [
+          status: :upcoming,
+          updated_at: now,
+          suspended_at: nil,
+          suspension_reason: nil
+        ]
+      )
+
+    {stale_tennis_closed, _} =
+      from(m in Match,
+        where: m.provider == "api_tennis",
+        where: m.sport == :tennis,
+        where: m.status == :upcoming,
+        where: not is_nil(m.start_time) and m.start_time <= ^stale_tennis_cutoff
+      )
+      |> Repo.update_all(
+        set: [
+          status: :closed,
+          in_play_enabled: false,
+          updated_at: now,
+          suspended_at: now,
+          suspension_reason: "tennis_stale_schedule_guard"
+        ]
+      )
+
+    {tennis_terminal_closed, _} =
+      from(m in Match,
+        where: m.provider == "api_tennis",
+        where: m.sport == :tennis,
+        where: m.status in [:upcoming, :live],
+        where:
+          fragment(
+            "lower(coalesce(?->>'event_status', ?->'provider_payload'->>'event_status', ''))",
+            m.raw_data,
+            m.raw_data
+          ) in ^terminal_tennis_statuses
+      )
+      |> Repo.update_all(
+        set: [
+          status: :closed,
+          in_play_enabled: false,
+          updated_at: now,
+          suspended_at: now,
+          suspension_reason: "tennis_terminal_status"
+        ]
+      )
+
+    {stale_tennis_live_closed, _} =
+      from(m in Match,
+        where: m.provider == "api_tennis",
+        where: m.sport == :tennis,
+        where: m.status == :live,
+        where: not is_nil(m.start_time) and m.start_time <= ^stale_tennis_live_cutoff
+      )
+      |> Repo.update_all(
+        set: [
+          status: :closed,
+          in_play_enabled: false,
+          updated_at: now,
+          suspended_at: now,
+          suspension_reason: "tennis_live_duration_guard"
+        ]
+      )
+
+    {future_tennis_scheduled, _} =
+      from(m in Match,
+        where: m.provider == "api_tennis",
+        where: m.sport == :tennis,
+        where: m.status == :live,
+        where:
+          fragment(
+            "lower(coalesce(?->>'event_status', ?->'provider_payload'->>'event_status', ''))",
+            m.raw_data,
+            m.raw_data
+          ) in ^pending_tennis_statuses,
+        where: not is_nil(m.start_time) and m.start_time > ^now
+      )
+      |> Repo.update_all(
+        set: [
+          status: :upcoming,
+          updated_at: now,
+          suspended_at: nil,
+          suspension_reason: nil
+        ]
+      )
+
+    {generic_terminal_live_closed, _} =
+      from(m in Match,
+        where: m.status == :live,
+        where:
+          fragment(
+            "lower(coalesce(?->>'status', ?->>'match_status', ?->'fixture'->'status'->>'short', ?->'fixture'->'status'->>'long', ?->>'event_status', ?->'provider_payload'->>'event_status', '')) ~ '(finished|ft|aet|pen|ended|closed|cancel|abandon|postpon|retired|walkover|\\mwo\\M)'",
+            m.raw_data,
+            m.raw_data,
+            m.raw_data,
+            m.raw_data,
+            m.raw_data,
+            m.raw_data
+          )
+      )
+      |> Repo.update_all(
+        set: [
+          status: :closed,
+          in_play_enabled: false,
+          updated_at: now,
+          suspended_at: now,
+          suspension_reason: "provider_terminal_status_guard"
+        ]
+      )
+
+    %{
+      football_closed: football_closed,
+      cricket_terminal_closed: cricket_terminal_closed,
+      old_cricket_closed: old_cricket_closed,
+      future_cricket_scheduled: future_cricket_scheduled,
+      stale_tennis_closed: stale_tennis_closed,
+      tennis_terminal_closed: tennis_terminal_closed,
+      stale_tennis_live_closed: stale_tennis_live_closed,
+      future_tennis_scheduled: future_tennis_scheduled,
+      generic_terminal_live_closed: generic_terminal_live_closed
+    }
+  rescue
+    error ->
+      Logger.warning("[MATCH_FETCHER] stale status reconciliation failed: #{inspect(error)}")
+      %{football_closed: 0, cricket_terminal_closed: 0, old_cricket_closed: 0}
+  end
+
   defp maybe_trigger_cricket_live_bootstrap(match, attrs) do
     cond do
       attrs[:sport] != :cricket ->
@@ -409,17 +656,17 @@ defmodule Back.Workers.MatchFetcher do
   end
 
   defp kickoff_auto_promotion_sports do
-    case Application.get_env(:back, :kickoff_live_auto_promotion_sports, [:football]) do
+    case Application.get_env(:back, :kickoff_live_auto_promotion_sports, [:football, :cricket]) do
       sports when is_list(sports) and sports != [] ->
         Enum.map(sports, &normalize_sport_value/1)
         |> Enum.reject(&is_nil/1)
         |> case do
-          [] -> [:football]
+          [] -> [:football, :cricket]
           values -> values
         end
 
       _ ->
-        [:football]
+        [:football, :cricket]
     end
   end
 
@@ -462,21 +709,24 @@ defmodule Back.Workers.MatchFetcher do
       raw_data
       |> Map.get("fixture", %{})
       |> case do
-        value when is_map(value) -> Map.get(value, "status", %{})
+        %{} = fixture -> Map.get(fixture, "status", %{})
         _ -> %{}
       end
 
-    [
+    candidates = [
+      Map.get(fixture_status, "short"),
+      Map.get(fixture_status, "long"),
       raw_data["match_status"],
       raw_data["status"],
-      fixture_status["short"],
-      fixture_status["long"],
-      fixture_status["description"],
-      fixture_status["state"]
+      raw_data["event_status"]
     ]
-    |> Enum.find("", fn
-      value when is_binary(value) -> String.trim(value) != ""
-      _ -> false
+
+    candidates
+    |> Enum.find("", fn value ->
+      case value do
+        value when is_binary(value) -> String.trim(value) != ""
+        _ -> false
+      end
     end)
     |> to_string()
   end

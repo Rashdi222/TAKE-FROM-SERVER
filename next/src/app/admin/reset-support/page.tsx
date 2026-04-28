@@ -18,7 +18,7 @@ export default function AdminResetSupportPage() {
     <ResetSupportManager
       title="Global Reset Support"
       description="Manage the support contacts shown to direct site users when they use the forgot-password lookup flow."
-      contacts={data?.data ?? []}
+      contacts={(data as { data?: import("@/lib/api/types/resetSupport").ResetSupportContact[] } | undefined)?.data ?? []}
       isLoading={isLoading}
       createContact={(body) => createContact.mutateAsync(body)}
       updateContact={(id, body) => updateContact.mutateAsync({ id, body })}

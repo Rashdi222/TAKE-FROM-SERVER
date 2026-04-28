@@ -1,13 +1,11 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Activity, CalendarDays, Clock3, LoaderCircle, Orbit, Radio } from "lucide-react";
 import { useQueries } from "@tanstack/react-query";
 import { type Match, publicApi } from "@/lib/api";
 import { Card } from "@/components/ui/Card";
-import { MatchDetailPageClient } from "@/components/public/MatchDetailPageClient";
-import { TennisLobbyPageClient } from "@/components/tennis/public/TennisLobbyPageClient";
 import {
   matchCompetitionName,
   readableSport,
@@ -30,27 +28,19 @@ const FILTER_TABS: Array<{ key: MatchFilterKey; label: string; icon: typeof Radi
 ];
 
 export function PlayerSportsbookWorkspace({ sportSlug }: { sportSlug: SportsbookSportId }) {
-  if (sportSlug === "tennis") {
-    return <TennisSportsbookWorkspace />;
-  }
-
   return <StandardSportsbookWorkspace sportSlug={sportSlug} />;
-}
-
-function TennisSportsbookWorkspace() {
-  return <TennisLobbyPageClient initialFixtures={[]} initialLive={[]} />;
 }
 
 function StandardSportsbookWorkspace({ sportSlug }: { sportSlug: SportsbookSportId }) {
   const sport = getSportsbookSport(sportSlug);
   const router = useRouter();
-  const pathname = usePathname();
   const searchParams = useSearchParams();
   const selectedMatchId = searchParams.get("match");
   const [activeFilter, setActiveFilter] = useState<MatchFilterKey | null>(null);
   const [nowMs, setNowMs] = useState(() => Date.now());
+  const [stickyMatches, setStickyMatches] = useState<Match[]>([]);
 
-  const LIVE_SYNC_INTERVAL_MS = 2_000;
+  const LIVE_SYNC_INTERVAL_MS = 1_000;
 
   useEffect(() => {
     const timer = window.setInterval(() => setNowMs(Date.now()), LIVE_SYNC_INTERVAL_MS);
@@ -90,14 +80,29 @@ function StandardSportsbookWorkspace({ sportSlug }: { sportSlug: SportsbookSport
     ],
   });
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const cached = window.sessionStorage.getItem(`sportsbook:${sportSlug}:matches`);
+      if (!cached) return;
+      const parsed = JSON.parse(cached);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setStickyMatches(parsed as Match[]);
+      }
+    } catch {
+      // best-effort cache hydration
+    }
+  }, [sportSlug]);
+
   const allMatches = useMemo(() => {
     const deduped = new Map<string, Match>();
     const rows = [
       ...(((upcomingQuery.data as { data?: Match[] } | undefined)?.data ?? []) as Match[]),
       ...(((liveQuery.data as { data?: Match[] } | undefined)?.data ?? []) as Match[]),
     ];
+    const sourceRows = rows.length > 0 ? rows : stickyMatches;
 
-    for (const match of rows) {
+    for (const match of sourceRows) {
       const existing = deduped.get(match.id);
       deduped.set(match.id, choosePreferredMatch(existing, match, nowMs));
     }
@@ -106,7 +111,32 @@ function StandardSportsbookWorkspace({ sportSlug }: { sportSlug: SportsbookSport
       .filter(isRenderablePublicMatch)
       .filter((match) => !isExpiredUpcomingMatch(match, nowMs))
       .sort((left, right) => compareMatches(left, right, nowMs));
-  }, [liveQuery.data, nowMs, upcomingQuery.data]);
+  }, [liveQuery.data, nowMs, stickyMatches, upcomingQuery.data]);
+
+  useEffect(() => {
+    const rows = [
+      ...(((upcomingQuery.data as { data?: Match[] } | undefined)?.data ?? []) as Match[]),
+      ...(((liveQuery.data as { data?: Match[] } | undefined)?.data ?? []) as Match[]),
+    ];
+    if (rows.length === 0) return;
+
+    const deduped = new Map<string, Match>();
+    for (const match of rows) {
+      const existing = deduped.get(match.id);
+      deduped.set(match.id, choosePreferredMatch(existing, match, nowMs));
+    }
+
+    const nextRows = Array.from(deduped.values()).slice(0, 240);
+    setStickyMatches(nextRows);
+
+    if (typeof window !== "undefined") {
+      try {
+        window.sessionStorage.setItem(`sportsbook:${sportSlug}:matches`, JSON.stringify(nextRows));
+      } catch {
+        // best-effort cache persistence
+      }
+    }
+  }, [liveQuery.data, nowMs, sportSlug, upcomingQuery.data]);
 
   const liveCount = useMemo(
     () => allMatches.filter((match) => effectiveMatchStatus(match, nowMs) === "live").length,
@@ -126,7 +156,7 @@ function StandardSportsbookWorkspace({ sportSlug }: { sportSlug: SportsbookSport
     const counts: Record<MatchFilterKey, number> = { live: 0, upcoming: 0, today: 0, week: 0, month: 0 };
     allMatches.forEach((match) => {
       const status = effectiveMatchStatus(match, nowMs);
-      const isLive = status === "live" || status === "starting";
+      const isLive = status === "live";
       if (isLive) counts.live += 1;
       const startMs = match.start_time ? new Date(String(match.start_time)).getTime() : Number.NaN;
       if (!Number.isFinite(startMs)) return;
@@ -147,7 +177,7 @@ function StandardSportsbookWorkspace({ sportSlug }: { sportSlug: SportsbookSport
 
     return allMatches.filter((match) => {
       const effectiveStatus = effectiveMatchStatus(match, nowMs);
-      const isLive = effectiveStatus === "live" || effectiveStatus === "starting";
+      const isLive = effectiveStatus === "live";
 
       if (effectiveFilter === "live") return isLive;
 
@@ -162,15 +192,9 @@ function StandardSportsbookWorkspace({ sportSlug }: { sportSlug: SportsbookSport
   }, [allMatches, effectiveFilter, nowMs]);
 
   const effectiveSelectedMatchId = useMemo(() => {
-    if (filteredMatches.length === 0) return null;
-    if (selectedMatchId && filteredMatches.some((match) => match.id === selectedMatchId)) return selectedMatchId;
-    return filteredMatches[0].id;
+    if (!selectedMatchId) return null;
+    return filteredMatches.some((match) => match.id === selectedMatchId) ? selectedMatchId : null;
   }, [filteredMatches, selectedMatchId]);
-
-  const selectedMatch = useMemo(
-    () => allMatches.find((match) => match.id === effectiveSelectedMatchId) || null,
-    [allMatches, effectiveSelectedMatchId],
-  );
 
   const isLoading = liveQuery.isLoading || upcomingQuery.isLoading;
 
@@ -178,13 +202,9 @@ function StandardSportsbookWorkspace({ sportSlug }: { sportSlug: SportsbookSport
     return null;
   }
 
-  const syncWorkspaceRoute = (matchId: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set("match", matchId);
-    params.delete("view");
-
-    const query = params.toString();
-    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  const openMatchPage = (match: Match) => {
+    const slug = typeof match.slug === "string" && match.slug.trim().length > 0 ? `/${match.slug}` : "";
+    router.push(`/matches/${match.id}${slug}`, { scroll: true });
   };
 
   return (
@@ -286,19 +306,21 @@ function StandardSportsbookWorkspace({ sportSlug }: { sportSlug: SportsbookSport
         <>
           <section className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {filteredMatches.map((match, index) => {
-              const isLive = effectiveMatchStatus(match, nowMs) === "live" || effectiveMatchStatus(match, nowMs) === "starting";
+              const isLive = effectiveMatchStatus(match, nowMs) === "live";
               const active = match.id === effectiveSelectedMatchId;
 
               return (
                 <button
                   key={match.id}
                   type="button"
-                  onClick={() => syncWorkspaceRoute(match.id)}
-                className={[
-                    "sb-micro-pop sb-stagger-in sb-soft-sheen group min-h-[9.5rem] touch-manipulation text-left rounded-[1.25rem] border p-4 transition sm:min-h-0",
+                  onClick={() => openMatchPage(match)}
+                  className={[
+                    "sb-micro-pop sb-stagger-in sb-soft-sheen group min-h-[10.75rem] touch-manipulation text-left rounded-[1.25rem] border p-4 transition sm:min-h-0",
                     active
                       ? "border-[var(--c-accent)] bg-[linear-gradient(160deg,rgba(58,139,255,0.2),rgba(99,32,232,0.14))] shadow-[0_16px_34px_rgba(0,0,0,0.2)]"
-                      : "border-[var(--c-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.015))] hover:-translate-y-0.5 hover:border-[var(--c-accent)] hover:shadow-[0_14px_30px_rgba(0,0,0,0.18)]",
+                      : isLive
+                        ? "border-[rgba(255,77,79,0.28)] bg-[radial-gradient(circle_at_top_right,rgba(255,77,79,0.14),transparent_36%),linear-gradient(180deg,rgba(255,255,255,0.055),rgba(255,255,255,0.018))] hover:-translate-y-0.5 hover:border-[var(--c-accent)] hover:shadow-[0_14px_30px_rgba(0,0,0,0.18)]"
+                        : "border-[var(--c-border)] bg-[linear-gradient(180deg,rgba(255,255,255,0.04),rgba(255,255,255,0.015))] hover:-translate-y-0.5 hover:border-[var(--c-accent)] hover:shadow-[0_14px_30px_rgba(0,0,0,0.18)]",
                   ].join(" ")}
                   style={{ animationDelay: `${Math.min(index, 11) * 24}ms` }}
                 >
@@ -313,13 +335,23 @@ function StandardSportsbookWorkspace({ sportSlug }: { sportSlug: SportsbookSport
                     </div>
                     <div
                       className={[
-                        "rounded-xl border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
+                        "inline-flex items-center gap-1.5 rounded-xl border px-2 py-1 text-[10px] font-semibold uppercase tracking-[0.14em]",
                         isLive
                           ? "border-[rgba(255,77,79,0.24)] bg-[rgba(255,77,79,0.12)] text-[var(--c-danger)]"
                           : "border-[var(--c-border)] bg-[rgba(255,255,255,0.04)] text-[var(--c-text-muted)]",
                       ].join(" ")}
                     >
+                      {isLive ? <span className="h-1.5 w-1.5 rounded-full bg-[var(--c-danger)] animate-pulse" /> : null}
                       {isLive ? "Live Now" : "Scheduled"}
+                    </div>
+                  </div>
+
+                  <div className="mt-3 grid gap-2">
+                    <div className="rounded-xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.035)] px-3 py-2">
+                      <div className="truncate text-sm font-semibold text-[var(--c-text)]">{match.team1}</div>
+                    </div>
+                    <div className="rounded-xl border border-[rgba(255,255,255,0.07)] bg-[rgba(255,255,255,0.035)] px-3 py-2">
+                      <div className="truncate text-sm font-semibold text-[var(--c-text)]">{match.team2}</div>
                     </div>
                   </div>
 
@@ -333,18 +365,6 @@ function StandardSportsbookWorkspace({ sportSlug }: { sportSlug: SportsbookSport
               );
             })}
           </section>
-
-          {selectedMatch ? (
-            <div className="overflow-hidden rounded-[1.5rem] border border-[var(--c-border-strong)] bg-[rgba(255,255,255,0.02)]">
-              <MatchDetailPageClient
-                matchId={selectedMatch.id}
-                initialMatch={selectedMatch}
-                initialOdds={[]}
-                embedded
-                embeddedView="board"
-              />
-            </div>
-          ) : null}
         </>
       )}
 
@@ -395,8 +415,8 @@ function compareMatches(left: Match, right: Match, nowMs: number) {
 }
 
 function effectiveMatchStatus(match: Match, nowMs: number) {
-  if (hasLiveSignals(match)) return "live";
   if (hasExplicitNonLiveHoldStatus(match)) return match.status;
+  if (hasLiveSignals(match)) return "live";
   if (match.status !== "upcoming" && match.status !== "scheduled") return match.status;
 
   const startMs = match.start_time ? new Date(String(match.start_time)).getTime() : Number.NaN;
@@ -421,10 +441,7 @@ function choosePreferredMatch(existing: Match | undefined, incoming: Match, nowM
   const existingStatus = effectiveMatchStatus(existing, nowMs);
   const incomingStatus = effectiveMatchStatus(incoming, nowMs);
 
-  if (existingStatus === "live" && incomingStatus !== "live") return existing;
-  if (incomingStatus === "live" && existingStatus !== "live") return incoming;
-  if (existingStatus === "starting" && incomingStatus === "upcoming") return existing;
-  if (incomingStatus === "starting" && existingStatus === "upcoming") return incoming;
+  if (existingStatus !== incomingStatus) return incoming;
 
   const existingSeq = Number(existing.live_event_seq || existing.live_state_version || 0);
   const incomingSeq = Number(incoming.live_event_seq || incoming.live_state_version || 0);

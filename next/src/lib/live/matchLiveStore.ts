@@ -683,7 +683,7 @@ export function createLiveMatchStore(
             : payload.market_state && typeof payload.market_state === "object"
               ? {
                   ...current.dataHealth,
-                  degraded,
+                  degraded: degraded === true,
                   warning: degraded
                     ? degradedReason
                       ? `Live feed degraded (${degradedReason.replace(/_/g, " ")}). Showing last published prices.`

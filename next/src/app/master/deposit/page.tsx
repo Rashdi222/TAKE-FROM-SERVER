@@ -26,7 +26,7 @@ export default function MasterDepositPage() {
       <PaymentSupportContactsCard
         title="Contact platform funding support"
         description="These contacts come from the active super-admin support setup for funding and balance assistance."
-        result={data?.data ?? null}
+        result={(data as { data?: import("@/lib/api/types/resetSupport").ForgotPasswordSupportLookupResponse } | undefined)?.data ?? null}
       />
     </div>
   );

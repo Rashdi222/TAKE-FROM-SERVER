@@ -115,7 +115,11 @@ defmodule Back.State.MarketManager do
                    suspend_reason =
                      first_present_text([market["reason"], market["suspension_reason"]])
 
-                   valid_for_ms = normalize_integer(market["valid_for_ms"]) || 5_000
+                   valid_for_ms =
+                     market
+                     |> Map.get("valid_for_ms")
+                     |> normalize_integer()
+                     |> public_cricket_quote_ttl()
 
                    provider_snapshot =
                      %{
@@ -1415,6 +1419,13 @@ defmodule Back.State.MarketManager do
   end
 
   defp carry_forward_suspended_markets(_, _, _, _), do: []
+
+  defp public_cricket_quote_ttl(value) when is_integer(value) and value > 0 do
+    max(value, Application.get_env(:back, :cricket_public_quote_min_ttl_ms, 60_000))
+  end
+
+  defp public_cricket_quote_ttl(_),
+    do: Application.get_env(:back, :cricket_public_quote_min_ttl_ms, 60_000)
 
   defp market_identity_from_map(market) when is_map(market) do
     market_key = first_non_blank([market["market_key"], market[:market_key]])

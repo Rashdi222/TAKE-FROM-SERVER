@@ -30,7 +30,7 @@ export default function MasterAdminsPage() {
   );
 
   const masterAdmins: MasterAdmin[] = (filteredData as { data?: MasterAdmin[] })?.data || [];
-  const currencies = (currencyData?.data ?? []).filter((currency) => currency.enabled !== false);
+  const currencies = ((currencyData as { data?: import("@/lib/api/types/settings").AccountCurrency[] } | undefined)?.data ?? []).filter((currency) => currency.enabled !== false);
 
   return (
     <div className="container mx-auto px-4 py-8">

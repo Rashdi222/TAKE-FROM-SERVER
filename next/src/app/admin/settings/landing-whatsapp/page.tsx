@@ -12,7 +12,7 @@ import { useLandingWhatsappSettings, useUpdateLandingWhatsappSettings } from "@/
 
 type FormState = {
   enabled: boolean;
-  channel: "whatsapp";
+  channel: string;
   label: string;
   phone_number: string;
   country_code: string;
@@ -75,7 +75,7 @@ export default function LandingWhatsappSettingsPage() {
       country_code: form.country_code,
       message: form.message,
     });
-    setDraft({ ...form, phone_number: normalizedPhone });
+    setDraft({ ...form, phone_number: normalizedPhone, channel: "whatsapp" as const });
     setSuccess("Landing WhatsApp settings saved.");
   };
 
@@ -112,7 +112,7 @@ export default function LandingWhatsappSettingsPage() {
               <button
                 type="button"
                 aria-pressed={form.enabled}
-                onClick={() => setDraft((prev) => ({ ...(prev ?? form), enabled: !form.enabled }))}
+                onClick={() => setDraft((prev) => ({ ...(prev ?? form), enabled: !form.enabled, channel: "whatsapp" as const }))}
                 className={`relative h-7 w-14 rounded-full transition-colors ${form.enabled ? "bg-[var(--c-accent)]" : "bg-[var(--c-surface-3)]"}`}
               >
                 <span

@@ -303,7 +303,7 @@ export default function AdminCricketPage() {
   const automationRunsByMatch = useMemo(
     () =>
       (((automationRunsData as { data?: Record<string, unknown> } | undefined)?.data ??
-        {}) as Record<string, { prematch?: unknown; inplay?: unknown }>),
+        {}) as Record<string, { prematch?: import("@/lib/api/types/providers").CricketAutomationRun; inplay?: import("@/lib/api/types/providers").CricketAutomationRun }>),
     [automationRunsData],
   );
 

@@ -86,7 +86,7 @@ export function FootballMarketBoard({
   const suspensionMessage = visibleSuspensionMessage(filteredGroups, suspendedMarkets, canonicalMarkets);
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3">
       <div className="overflow-x-auto">
         <div className="flex min-w-max gap-2 rounded-[var(--r-md)] border border-[var(--c-border)] bg-[rgba(255,255,255,0.03)] p-2">
           {marketTabs.map((tab) => {
@@ -124,15 +124,19 @@ export function FootballMarketBoard({
 
       {filteredGroups.map((group) => (
         <Card key={group.key} variant="surface-1" className="overflow-hidden">
-          <div className="border-b border-[var(--c-border)] px-4 py-3 sm:px-5">
+          <div className="border-b border-[var(--c-border)] px-4 py-2.5 sm:px-5">
             <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-[var(--c-text-faint)]">Market</div>
-            <div className="mt-1 text-lg font-semibold text-[var(--c-text)]">
+            <div className="mt-1 text-base font-semibold text-[var(--c-text)] sm:text-lg">
               {formatFootballMarketLabel(group.label, {
                 selections: group.oddsIds.map((oddsId) => String(oddsById[oddsId]?.outcome || "")),
               })}
             </div>
           </div>
-          <div className="space-y-3 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0))] p-4">
+          <div className="grid grid-cols-[minmax(0,1fr)_112px] border-b border-[var(--c-border)] bg-[rgba(255,255,255,0.02)] px-4 py-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--c-text-faint)] sm:px-5">
+            <span>Selection</span>
+            <span className="text-right">Odds</span>
+          </div>
+          <div className="space-y-2 bg-[linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0))] p-3 sm:p-4">
             {buildMarketRows(group.oddsIds, oddsById).map((row) => {
               const columnClass =
                 row.oddsIds.length >= 3 ? "grid-cols-3" : row.oddsIds.length === 2 ? "grid-cols-2" : "grid-cols-1";
@@ -140,10 +144,10 @@ export function FootballMarketBoard({
               return (
                 <div
                   key={row.key}
-                  className="rounded-[var(--r-md)] border border-[rgba(255,255,255,0.1)] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))] p-3 shadow-[0_10px_24px_rgba(7,10,25,0.32)]"
+                  className="rounded-[var(--r-md)] border border-[rgba(255,255,255,0.1)] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))] p-2.5 shadow-[0_10px_24px_rgba(7,10,25,0.28)]"
                 >
                   {row.lineLabel ? (
-                    <div className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--c-text-faint)]">
+                    <div className="mb-1.5 text-[10px] font-semibold uppercase tracking-[0.14em] text-[var(--c-text-faint)]">
                       {row.lineLabel}
                     </div>
                   ) : null}

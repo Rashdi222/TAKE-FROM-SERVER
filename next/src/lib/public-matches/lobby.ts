@@ -568,9 +568,15 @@ function marketPriority(sport: string | null | undefined, value: string) {
   }
 }
 
-type MatchOddsLike = {
+export type MatchOddsLike = {
+  id?: string | number | null;
   bet_type?: string | null;
   market?: string | null;
+  outcome?: string | null;
+  source_market_key?: string | null;
+  max_stake_amount?: number | string | null;
+  odds_value?: number | string | null;
+  selection_key?: string | null;
 };
 
 function earliestGroupTime(groups: Record<string, Match[]>) {

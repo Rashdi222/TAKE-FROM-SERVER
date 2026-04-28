@@ -100,8 +100,20 @@ export function MatchDetailPageClient({
       groups.set(key, bucket);
     }
 
-    return sortPublicMarketGroups(match?.sport, Array.from(groups.entries()));
+    return sortPublicMarketGroups(match?.sport, Array.from(groups.entries()) as Array<[string, import("@/lib/public-matches/lobby").MatchOddsLike[]]>);
   }, [odds, match?.sport]);
+
+  const marketAnchors = useMemo(
+    () =>
+      groupedOdds.map(([groupTitle, groupItems]) => ({
+        id: marketAnchorId(groupTitle),
+        title: formatPublicMarketLabel(match?.sport ?? "cricket", groupTitle, {
+          selections: groupItems.map((item) => String(item.outcome || "")),
+        }),
+        count: groupItems.length,
+      })),
+    [groupedOdds, match?.sport],
+  );
 
   const handlePlaceBet = (odd: Odds) => {
     setSelectedOdds(odd);
@@ -249,6 +261,25 @@ export function MatchDetailPageClient({
             </div>
           </div>
 
+          {marketAnchors.length > 1 ? (
+            <div className="overflow-x-auto pb-1">
+              <div className="flex min-w-max gap-2">
+                {marketAnchors.map((anchor) => (
+                  <a
+                    key={anchor.id}
+                    href={`#${anchor.id}`}
+                    className="inline-flex items-center gap-2 rounded-full border border-[var(--c-border)] bg-[rgba(255,255,255,0.04)] px-3 py-1.5 text-xs font-semibold text-[var(--c-text-muted)] transition hover:border-[var(--c-accent)] hover:text-[var(--c-text)]"
+                  >
+                    <span className="truncate max-w-[12rem]">{anchor.title}</span>
+                    <span className="rounded-full bg-[rgba(255,255,255,0.08)] px-1.5 py-0.5 text-[10px] font-semibold">
+                      {anchor.count}
+                    </span>
+                  </a>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
           {oddsHydrationPending ? (
             <DetailSkeleton />
           ) : oddsLoadFailed ? (
@@ -288,56 +319,84 @@ export function MatchDetailPageClient({
               </p>
             </Card>
           ) : (
-            <div className="space-y-6">
+            <div className="space-y-4">
               {groupedOdds.map(([groupTitle, groupItems]) => (
-                <Card key={groupTitle} variant="surface-1" className="overflow-hidden">
-                  <div className="border-b border-[var(--c-border)] px-5 py-4">
-                    <div className="text-[11px] font-semibold uppercase tracking-[0.22em] text-[var(--c-text-faint)]">
-                      Market
+                <Card
+                  key={groupTitle}
+                  id={marketAnchorId(groupTitle)}
+                  variant="surface-1"
+                  className="scroll-mt-28 overflow-hidden"
+                >
+                  <div className="border-b border-[var(--c-border)] px-4 py-3 sm:px-5 sm:py-4">
+                    <div className="flex flex-wrap items-center justify-between gap-2">
+                      <div>
+                        <div className="text-[10px] font-semibold uppercase tracking-[0.22em] text-[var(--c-text-faint)]">
+                          Market
+                        </div>
+                        <h3 className="mt-1 text-base font-semibold text-[var(--c-text)] sm:text-lg">
+                          {formatPublicMarketLabel(match.sport, groupTitle, {
+                            selections: groupItems.map((item) => String(item.outcome || "")),
+                          })}
+                        </h3>
+                      </div>
+                      <div className="rounded-full border border-[var(--c-border)] bg-[rgba(255,255,255,0.04)] px-2.5 py-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-[var(--c-text-faint)]">
+                        {groupItems.length} selections
+                      </div>
                     </div>
-                    <h3 className="mt-1 text-lg font-semibold text-[var(--c-text)]">
-                      {formatPublicMarketLabel(match.sport, groupTitle, {
-                        selections: groupItems.map((item) => String(item.outcome || "")),
-                      })}
-                    </h3>
                   </div>
 
-                  <div className="divide-y divide-[var(--c-border)]">
-                    {groupItems.map((odd) => (
-                      <div
-                        key={odd.id}
-                        className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
-                      >
-                        <div className="min-w-0">
-                          <div className="text-base font-semibold text-[var(--c-text)]">
-                            {formatPublicOutcomeLabel(
-                              match.sport,
-                              String(odd.outcome || odd.market || "Selection"),
-                              String(odd.source_market_key || odd.bet_type || odd.market || ""),
-                              match.team1,
-                              match.team2
-                            )}
-                          </div>
-                          <div className="mt-1 text-sm text-[var(--c-text-muted)]">
-                            Max stake {formatDecimal(odd.max_stake_amount ?? 0)}
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-3">
-                          <div className="rounded-[var(--r-md)] border border-[var(--c-border)] bg-[var(--c-surface-1)] px-4 py-3 text-right">
-                            <div className="text-xs font-semibold uppercase tracking-[0.18em] text-[var(--c-text-faint)]">
-                              Odds
-                            </div>
-                            <div className="mt-1 text-2xl font-mono font-bold text-[var(--c-accent)]">
+                  <div className="overflow-x-auto">
+                    <table className="w-full border-separate border-spacing-0">
+                      <thead>
+                        <tr className="bg-[rgba(255,255,255,0.02)]">
+                          <th className="px-4 py-3 text-left text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--c-text-faint)] sm:px-5">
+                            Selection
+                          </th>
+                          <th className="px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--c-text-faint)] sm:px-5">
+                            Odds
+                          </th>
+                          <th className="px-4 py-3 text-right text-[10px] font-semibold uppercase tracking-[0.18em] text-[var(--c-text-faint)] sm:px-5">
+                            Action
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {groupItems.map((odd) => (
+                          <tr
+                            key={odd.id}
+                            className="border-t border-[var(--c-border)] hover:bg-[rgba(255,255,255,0.02)]"
+                          >
+                            <td className="min-w-[220px] px-4 py-3 align-top sm:px-5 sm:py-4">
+                              <div className="text-sm font-semibold text-[var(--c-text)]">
+                                {formatPublicOutcomeLabel(
+                                  match.sport,
+                                  String(odd.outcome || odd.market || "Selection"),
+                                  String(odd.source_market_key || odd.bet_type || odd.market || ""),
+                                  match.team1,
+                                  match.team2,
+                                )}
+                              </div>
+                              <div className="mt-1 text-xs text-[var(--c-text-muted)]">
+                                Max stake {formatDecimal(odd.max_stake_amount ?? 0)}
+                              </div>
+                            </td>
+                            <td className="whitespace-nowrap px-4 py-3 text-right align-top font-mono text-lg font-semibold text-[var(--c-text)] sm:px-5 sm:py-4">
                               {Number(odd.odds_value ?? 0).toFixed(2)}
-                            </div>
-                          </div>
-                          <Button variant="primary" onClick={() => handlePlaceBet(odd)}>
-                            Bet
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                            </td>
+                            <td className="whitespace-nowrap px-4 py-3 text-right align-top sm:px-5 sm:py-4">
+                              <Button
+                                size="sm"
+                                variant="ghost"
+                                className="rounded-full border border-[var(--c-border)] bg-[rgba(255,255,255,0.02)] px-3 text-[var(--c-text)] hover:bg-[rgba(255,255,255,0.05)]"
+                                onClick={() => handlePlaceBet(odd as Odds)}
+                              >
+                                Bet
+                              </Button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </Card>
               ))}
@@ -558,4 +617,11 @@ function DetailSkeleton() {
       ))}
     </div>
   );
+}
+
+function marketAnchorId(value: string) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
 }

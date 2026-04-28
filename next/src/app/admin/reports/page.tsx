@@ -32,7 +32,7 @@ export default function ReportsPage() {
   const currencyBreakdown = ((stats.currency_breakdown ?? []) as CurrencyBreakdown[]).filter((item) =>
     !currencyBreakdownFilter || item.code === currencyBreakdownFilter
   );
-  const currencies = (currencyData?.data ?? []).filter((currency) => currency.enabled !== false);
+  const currencies = ((currencyData as { data?: import("@/lib/api/types/settings").AccountCurrency[] } | undefined)?.data ?? []).filter((currency) => currency.enabled !== false);
 
   const userTotals = stats.total_users ?? {};
 

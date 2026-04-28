@@ -131,7 +131,7 @@ export function PaymentMethodEditorForm({
       const body = new FormData();
       body.set("logo", file);
       const result = await onUploadLogo(body);
-      const nextLogoPath = result?.data?.logo_path ?? (result as { logo_path?: string })?.logo_path;
+      const nextLogoPath = (result && "data" in result ? result.data?.logo_path : (result as { logo_path?: string })?.logo_path);
       if (!nextLogoPath) throw new Error("Logo upload failed.");
       setLogoPath(nextLogoPath);
     } catch (error) {

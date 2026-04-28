@@ -25,7 +25,7 @@ export function BetPlacementForm({ matchId, oddsId, oddsValue, onSuccess }: BetP
 
   const normalizedOddsValue = Number(oddsValue ?? 0);
   const stakeNum = Number(stake);
-  const balance = balanceData?.balance ?? 0;
+  const balance = Number(balanceData?.balance ?? 0);
   const currency = String(balanceData?.account_currency ?? "USD");
   const potentialWin = stakeNum * normalizedOddsValue;
 

@@ -29,7 +29,7 @@ export default function PlayersPage() {
   );
 
   const players: Player[] = (data as { data?: Player[] })?.data || [];
-  const currencies = (currencyData?.data ?? []).filter((currency) => currency.enabled !== false);
+  const currencies = ((currencyData as { data?: import("@/lib/api/types/settings").AccountCurrency[] } | undefined)?.data ?? []).filter((currency) => currency.enabled !== false);
 
   const filteredPlayers = players.filter((p) => {
     const searchLower = search.toLowerCase();

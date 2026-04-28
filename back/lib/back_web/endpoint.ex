@@ -47,7 +47,7 @@ defmodule BackWeb.Endpoint do
   plug Plug.Telemetry, event_prefix: [:phoenix, :endpoint]
 
   plug CORSPlug,
-    origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+    origin: ["http://localhost:3000", "http://127.0.0.1:3000", "https://test.faizicricket.com", "http://localhost:3003", "http://127.0.0.1:3003"],
     methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     headers: ["Authorization", "Content-Type", "Accept", "Origin"],
     expose: ["authorization"],

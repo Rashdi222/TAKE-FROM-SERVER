@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { Search, SlidersHorizontal } from "lucide-react";
 import type { Match } from "@/lib/api";
 import type { SportsbookSportItem } from "./sports";
@@ -41,7 +42,13 @@ export function SportMatchSidebar({
   onSelectMatch: (match: Match) => void;
   onViewLiveHud: (match: Match) => void;
 }) {
+  const router = useRouter();
   const visibleCount = matches.length;
+
+  const openMatchPage = (match: Match) => {
+    const slug = typeof match.slug === "string" && match.slug.trim().length > 0 ? `/${match.slug}` : "";
+    router.push(`/matches/${match.id}${slug}`, { scroll: true });
+  };
 
   return (
     <div className="flex h-full min-h-[36rem] flex-col overflow-hidden rounded-[1.6rem] border border-[var(--c-border-strong)] bg-[linear-gradient(180deg,rgba(255,255,255,0.05),rgba(255,255,255,0.015))] shadow-[0_20px_48px_rgba(0,0,0,0.24)]">
@@ -126,7 +133,10 @@ export function SportMatchSidebar({
                 key={match.id}
                 match={match}
                 selected={selectedMatchId === match.id}
-                onSelect={onSelectMatch}
+                onSelect={(selectedMatch) => {
+                  onSelectMatch(selectedMatch);
+                  openMatchPage(selectedMatch);
+                }}
                 onViewLiveHud={onViewLiveHud}
               />
             ))}

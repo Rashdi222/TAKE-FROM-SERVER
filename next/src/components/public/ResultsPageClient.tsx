@@ -1,11 +1,13 @@
 "use client";
 
+import NextImage from "next/image";
 import { useMemo, useState } from "react";
 import { CheckCircle2, Clock3, Ban, History } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { publicApi, type Match } from "@/lib/api";
 import { Card } from "@/components/ui/Card";
 import { PublicMatchGroup } from "@/components/public/matches/PublicMatchGroup";
+import { SPORTBOOK_SPORTS } from "@/components/user/sportsbook/sports";
 import {
   SPORT_OPTIONS,
   groupMatchesByDate,
@@ -128,19 +130,51 @@ export function ResultsPageClient() {
           <div className="flex gap-2 overflow-x-auto pb-1">
             {SPORT_OPTIONS.map((option) => {
               const active = option.id === sport;
+              const sportCard = SPORTBOOK_SPORTS.find((item) => item.id === option.id);
+              if (option.id === "all") {
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    onClick={() => setSport(option.id)}
+                    className={[
+                      "group relative min-h-12 shrink-0 overflow-hidden rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200",
+                      active
+                        ? "border-[var(--c-accent)] shadow-[0_10px_28px_rgba(58,139,255,0.18)]"
+                        : "border-[var(--c-border)] hover:border-[var(--c-accent)] hover:text-[var(--c-text)]",
+                    ].join(" ")}
+                  >
+                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,rgba(58,139,255,0.28),transparent_42%),radial-gradient(circle_at_bottom_right,rgba(99,32,232,0.22),transparent_40%),linear-gradient(180deg,rgba(17,24,39,0.64),rgba(8,10,18,0.86))]" />
+                    <span className="relative z-10 text-white">All</span>
+                  </button>
+                );
+              }
+
               return (
                 <button
                   key={option.id}
                   type="button"
                   onClick={() => setSport(option.id)}
                   className={[
-                    "whitespace-nowrap rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200",
+                    "group relative min-h-12 shrink-0 overflow-hidden rounded-full border px-4 py-2 text-sm font-medium transition-all duration-200",
                     active
-                      ? "border-[var(--c-accent)] bg-[linear-gradient(135deg,rgba(58,139,255,0.24),rgba(99,32,232,0.32))] text-[var(--c-text)] shadow-[0_10px_28px_rgba(58,139,255,0.18)]"
-                      : "border-[var(--c-border)] bg-[rgba(255,255,255,0.03)] text-[var(--c-text-muted)] hover:border-[var(--c-accent)] hover:text-[var(--c-text)]",
+                      ? "border-[var(--c-accent)] shadow-[0_10px_28px_rgba(58,139,255,0.18)]"
+                      : "border-[var(--c-border)] hover:border-[var(--c-accent)] hover:text-[var(--c-text)]",
                   ].join(" ")}
                 >
-                  {option.label}
+                  {sportCard ? (
+                    <>
+                      <NextImage
+                        src={sportCard.image}
+                        alt={sportCard.label}
+                        fill
+                        className="object-cover object-center opacity-30 transition-transform duration-300 group-hover:scale-[1.06]"
+                        sizes="140px"
+                      />
+                      <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(10,13,22,0.18),rgba(8,10,18,0.86))]" />
+                    </>
+                  ) : null}
+                  <span className="relative z-10 text-white">{option.label}</span>
                 </button>
               );
             })}

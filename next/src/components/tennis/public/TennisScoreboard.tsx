@@ -26,7 +26,7 @@ function pointLabel(value?: string | null) {
 export function TennisScoreboard({ match }: Props) {
   const score = match.score as
     | {
-        sets?: { player_1?: number; player_2?: number; rows?: Array<Record<string, unknown>> };
+        sets?: { player_1?: number; player_2?: number; rows?: Array<{ set?: number; player_1?: number | string; player_2?: number | string }> };
         current_game?: { player_1?: string; player_2?: string };
         server?: "player_1" | "player_2" | "unknown";
         mode?: string;
@@ -118,7 +118,7 @@ export function TennisScoreboard({ match }: Props) {
                 </div>
               </div>
 
-              {(rows.length > 0 ? rows : Array.from({ length: 3 }, () => ({}))).map((row, index) => (
+              {(rows.length > 0 ? rows : Array.from({ length: 3 }, () => ({} as { set?: number; player_1?: number | string; player_2?: number | string }))).map((row, index) => (
                 <div key={`${player.side}-${index}`} className="text-center font-mono text-sm text-white/85">
                   {player.side === "player_1"
                     ? String(row.player_1 ?? "-")

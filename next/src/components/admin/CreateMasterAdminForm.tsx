@@ -27,7 +27,7 @@ export function CreateMasterAdminForm() {
   const createAdmin = useCreateMasterAdmin();
   const { data: currencyData } = useAccountCurrencies();
   const currencies = useMemo(
-    () => (currencyData?.data ?? []).filter((currency) => currency.enabled !== false),
+    () => ((currencyData as { data?: import("@/lib/api/types/settings").AccountCurrency[] } | undefined)?.data ?? []).filter((currency) => currency.enabled !== false),
     [currencyData]
   );
   const selectedCurrency =

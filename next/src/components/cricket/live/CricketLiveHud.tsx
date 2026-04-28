@@ -14,6 +14,7 @@ import {
   extractRecentBalls,
 } from "@/lib/cricket/liveData";
 import { CricketActivePlayers } from "./CricketActivePlayers";
+import { CricketDeliveryStrip } from "./CricketDeliveryStrip";
 import { CricketLiveCommentary } from "./CricketLiveCommentary";
 import { CricketLiveScorecard } from "./CricketLiveScorecard";
 import { CricketMomentumWave } from "./CricketMomentumWave";
@@ -46,7 +47,7 @@ export const CricketLiveHud = memo(function CricketLiveHud({
     const scoreline = `${Number(match.runs_total || 0)}/${Number(match.wickets_total || 0)}`;
     const overs = String(match.current_over || "0.0");
     const targetRuns = toNumber(rates.targetRuns);
-    const recentBallLabels = recentBalls.slice(-6).map((ball) => ball.label || ball.value || "").filter(Boolean);
+    const recentBallLabels = recentBalls.slice(-6).map((ball) => ball.label || "").filter(Boolean);
 
     return (
       <div className="border-b border-white/8 bg-[rgba(4,8,16,0.88)] backdrop-blur-2xl">
@@ -116,6 +117,10 @@ export const CricketLiveHud = memo(function CricketLiveHud({
                 </span>
               )}
             </div>
+
+            <div className="mt-4">
+              <CricketDeliveryStrip balls={commentary} />
+            </div>
           </div>
         </div>
       </div>
@@ -155,6 +160,8 @@ export const CricketLiveHud = memo(function CricketLiveHud({
           captain={lineupBenchmarks.captain}
           wicketkeeper={lineupBenchmarks.wicketkeeper}
         />
+
+        <CricketDeliveryStrip balls={commentary} />
 
         <div className="grid gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(320px,0.8fr)]">
           <div className="space-y-4">

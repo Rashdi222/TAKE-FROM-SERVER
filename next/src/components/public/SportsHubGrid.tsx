@@ -4,17 +4,17 @@ import { SPORT_HUBS } from "@/lib/seo/public-content";
 
 export function SportsHubGrid() {
   return (
-    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+    <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
       {SPORT_HUBS.map((sport) => (
         <Link key={sport.slug} href={`/sports/${sport.slug}`}>
           <Card
             variant="surface-2"
-            className="h-full cursor-pointer p-6 transition-colors hover:border-[var(--c-accent)]"
+            className="h-full cursor-pointer p-4 transition-colors hover:border-[var(--c-accent)] sm:p-5"
           >
-            <h2 className="mb-3 text-2xl font-semibold text-[var(--c-text)]">
+            <h2 className="mb-2 text-xl font-semibold text-[var(--c-text)] sm:text-2xl">
               {sport.title}
             </h2>
-            <p className="mb-4 text-sm leading-6 text-[var(--c-text-muted)]">
+            <p className="mb-3 text-sm leading-6 text-[var(--c-text-muted)]">
               {sport.summary}
             </p>
             <p className="text-xs uppercase tracking-[0.18em] text-[var(--c-text-faint)]">
@@ -36,4 +36,3 @@ export function SportsHubGrid() {
     </div>
   );
 }
-

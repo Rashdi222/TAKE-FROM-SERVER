@@ -18,7 +18,7 @@ export default function MasterResetSupportPage() {
     <ResetSupportManager
       title="Player Reset Support"
       description="Manage the contacts shown to your players when they use forgot-password lookup by phone number."
-      contacts={data?.data ?? []}
+      contacts={(data as { data?: import("@/lib/api/types/resetSupport").ResetSupportContact[] } | undefined)?.data ?? []}
       isLoading={isLoading}
       createContact={(body) => createContact.mutateAsync(body)}
       updateContact={(id, body) => updateContact.mutateAsync({ id, body })}

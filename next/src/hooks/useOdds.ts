@@ -13,6 +13,7 @@ export interface OddsFilters {
   active_only?: "true";
   include_unpublished?: "true";
   source_type?: OddsSourceType;
+  [key: string]: string | number | boolean | null | undefined;
 }
 
 interface AdminOddsQueryOptions {

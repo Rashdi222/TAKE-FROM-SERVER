@@ -700,7 +700,7 @@ function AutomationStatusPanel({ status }: { status: MultiSourceAutomationStatus
         <SummaryCard title="Timed Out 24h" value={status.timed_out_source_fetches_24h} tone="warn" />
         <SummaryCard title="Auto Matched 24h" value={status.auto_confirmed_mappings_24h} tone="good" />
         <SummaryCard title="Open Live Queue" value={status.open_live_cricket_suggestions} tone="warn" />
-        <SummaryCard title="AI" value={status.ai_enabled ? "On" : "Off"} />
+        <SummaryCard title="AI" value={status.ai_enabled ? 1 : 0} tone={status.ai_enabled ? "good" : "warn"} />
       </div>
 
       <div className="mt-4 grid gap-4 lg:grid-cols-3">

@@ -250,7 +250,7 @@ function buildFallbackFootballContext(match: Match | null | undefined, raw: Reco
   const rawEvents = Array.isArray(raw.events) ? raw.events : [];
   const mappedEvents = rawEvents
     .map((item) => normalizeRawEvent(item))
-    .filter((item): item is NonNullable<FootballContext["events"]>[number] => Boolean(item));
+    .filter((item): item is Exclude<typeof item, null> => item !== null);
 
   const stats = buildFallbackStatistics(match);
 

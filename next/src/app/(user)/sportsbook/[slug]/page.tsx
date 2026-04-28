@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { PlayerSportsbookWorkspace } from "@/components/user/sportsbook/PlayerSportsbookWorkspace";
 import {
   SPORTBOOK_SPORT_LABELS,
@@ -16,5 +17,9 @@ export default async function PlayerSportBoardPage({ params }: PlayerSportBoardP
     notFound();
   }
 
-  return <PlayerSportsbookWorkspace sportSlug={slug as SportsbookSportId} />;
+  return (
+    <Suspense fallback={null}>
+      <PlayerSportsbookWorkspace sportSlug={slug as SportsbookSportId} />
+    </Suspense>
+  );
 }

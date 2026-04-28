@@ -1442,6 +1442,16 @@ defmodule Back.Betting do
       {:live_only, true}, q ->
         where(q, [m], m.status == :live)
 
+      {:has_public_odds, true}, q ->
+        where(
+          q,
+          [m],
+          fragment(
+            "exists (select 1 from odds o where o.match_id = ? and o.visibility_status = 'published' and o.source_type = 'platform' and o.is_active = true)",
+            m.id
+          )
+        )
+
       _, q ->
         q
     end)
@@ -1803,13 +1813,16 @@ defmodule Back.Betting do
         _ -> nil
       end
 
-    reference_time = odds.published_at || odds.updated_at || odds.inserted_at
+    reference_time = odds.updated_at || odds.published_at || odds.inserted_at
 
     cond do
       odds.visibility_status != :published ->
         false
 
       odds.is_active != true ->
+        false
+
+      odds.source_provider == "api_tennis" ->
         false
 
       is_nil(valid_for_ms) or valid_for_ms <= 0 ->

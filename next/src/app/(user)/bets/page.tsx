@@ -13,7 +13,7 @@ export default function BetsPage() {
       {isLoading ? (
         <p className="text-[var(--c-text-muted)]">Loading bets...</p>
       ) : (
-        <BetList bets={data?.data || []} />
+        <BetList bets={(data as { data?: import("@/lib/api/types/bets").Bet[] } | undefined)?.data || []} />
       )}
     </div>
   );

@@ -44,11 +44,11 @@ export const TennisLiveScorecard = memo(function TennisLiveScorecard({
         : "border-white/10 bg-[linear-gradient(180deg,#08131f_0%,#050b12_100%)]";
 
   return (
-    <section className={`rounded-[2rem] border p-5 text-white transition-[background-color,border-color,box-shadow] duration-300 ${pulseTone}`}>
+    <section className={`rounded-[2rem] border p-4 text-white transition-[background-color,border-color,box-shadow] duration-300 sm:p-5 ${pulseTone}`}>
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-[11px] uppercase tracking-[0.28em] text-white/45">Live Command Center</p>
-          <h1 className="mt-2 text-2xl font-semibold tracking-[-0.04em]">
+          <h1 className="mt-2 text-xl font-semibold tracking-[-0.04em] sm:text-2xl">
             {player1Name} vs {player2Name}
           </h1>
         </div>
@@ -58,7 +58,7 @@ export const TennisLiveScorecard = memo(function TennisLiveScorecard({
         </div>
       </div>
 
-      <div className="mt-6 grid gap-5 lg:grid-cols-[minmax(0,1.1fr)_220px]">
+      <div className="mt-4 grid gap-4 lg:grid-cols-[minmax(0,1.1fr)_220px]">
         <div>
           <div className="grid gap-2 sm:hidden">
             {[
@@ -136,7 +136,7 @@ export const TennisLiveScorecard = memo(function TennisLiveScorecard({
 
         <div className="rounded-[1.5rem] border border-white/10 bg-black/15 p-4 sm:rounded-[1.8rem]">
           <div className="text-[11px] uppercase tracking-[0.24em] text-white/40">Current Point</div>
-          <div className="mt-4 text-center text-4xl font-semibold tracking-[-0.1em] text-white sm:text-5xl md:text-6xl">
+          <div className="mt-3 text-center text-3xl font-semibold tracking-[-0.1em] text-white sm:text-5xl md:text-6xl">
             {pointScore}
           </div>
         </div>

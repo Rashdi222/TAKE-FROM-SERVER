@@ -10,7 +10,7 @@ import type { AccountCurrency } from "@/lib/api";
 export default function CurrencySettingsPage() {
   const { data, isLoading } = useAccountCurrencies();
   const updateCurrencies = useUpdateAccountCurrencies();
-  const currencies = useMemo(() => (data?.data ?? []) as AccountCurrency[], [data]);
+  const currencies = useMemo(() => ((data as { data?: AccountCurrency[] } | undefined)?.data ?? []), [data]);
   const [selected, setSelected] = useState<string[] | null>(null);
 
   const selectedCodes = selected ?? currencies.filter((currency) => currency.enabled !== false).map((currency) => currency.code);

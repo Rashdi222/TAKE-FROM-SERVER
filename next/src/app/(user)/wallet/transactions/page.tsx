@@ -25,7 +25,7 @@ export default function TransactionsPage() {
           <p className="text-[var(--c-text-muted)]">Loading transactions...</p>
         </Card>
       ) : (
-        <TransactionTable transactions={data?.data || []} />
+        <TransactionTable transactions={(data as { data?: import("@/lib/api/types/payments").PaymentTransaction[] } | undefined)?.data || []} />
       )}
     </div>
   );

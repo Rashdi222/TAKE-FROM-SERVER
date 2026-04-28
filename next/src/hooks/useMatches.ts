@@ -6,6 +6,7 @@ import { superAdminApi } from "@/lib/api";
 export interface MatchFilters {
   sport?: string;
   status?: string;
+  [key: string]: string | number | boolean | null | undefined;
 }
 
 export interface AdminMatchesQueryOptions {

@@ -66,11 +66,6 @@ export type TennisMatchState = {
   bet_count?: number | null;
   matched_volume?: number | string | null;
   house_position?: number | string | null;
-  deuce?: boolean | null;
-  tiebreak?: boolean | null;
-  break_point?: boolean | null;
-  set_point?: boolean | null;
-  match_point?: boolean | null;
 };
 
 export type TennisDeskResponse = {

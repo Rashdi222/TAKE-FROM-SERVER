@@ -77,7 +77,7 @@ config :back,
   football_ai_engine_enabled:
     System.get_env("FOOTBALL_AI_ENGINE_ENABLED", "false") in ["1", "true", "TRUE"],
   assistant_python_mock_enabled: false,
-  ai_engine_timeout_ms: String.to_integer(System.get_env("AI_ENGINE_TIMEOUT_MS") || "2000"),
+  ai_engine_timeout_ms: String.to_integer(System.get_env("AI_ENGINE_TIMEOUT_MS") || "8000"),
   cricket_reprice_queue_enabled:
     System.get_env("CRICKET_REPRICE_QUEUE_ENABLED") not in ["0", "false", "FALSE"],
   provider_cache_redis_enabled:
